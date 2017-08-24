@@ -25,17 +25,22 @@ public class ElasticUtil {
 	@Autowired
 	private ElasticConfig elasticConfig;
 	
+	private TransportClient client;
+	
 	public TransportClient getClient() {
-		TransportClient client = null;
-		Settings settings = Settings.builder().put("cluster.name", elasticConfig.getClusterName())
-				.put("client.transport.sniff", true).build();
-		try {
-			client = new PreBuiltTransportClient(settings).addTransportAddress(
-					new InetSocketTransportAddress(InetAddress.getByName(elasticConfig.getIp()), 
-							Integer.parseInt(elasticConfig.getPort())));
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
+		if(client == null) {
+			Settings settings = Settings.builder().put("cluster.name", elasticConfig.getClusterName())
+					.put("client.transport.sniff", true).build();
+			try {
+				client = new PreBuiltTransportClient(settings).addTransportAddress(
+						new InetSocketTransportAddress(InetAddress.getByName(elasticConfig.getIp()), 
+								Integer.parseInt(elasticConfig.getPort())));
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
 		}
 		return client;
 	}
+	
+	
 }
