@@ -30,6 +30,41 @@ public class EsTomcatController {
 	private ElasticUtil elasticUtil;
 	
 	@ResponseBody
+	@RequestMapping(value = "/tomcatRequest")
+	public String tomcatRequest(HttpServletRequest request) {
+		TransportClient client = elasticUtil.getClient();
+		BoolQueryBuilder boolq = new BoolQueryBuilder();
+		
+		MatchQueryBuilder queryBuilderGet = QueryBuilders.matchQuery("verb", "GET");
+		//GET  POST  ..
+		SearchResponse responseGet = client.prepareSearch("logstash-apacheaccesslog*") 
+				.setQuery(queryBuilderGet)
+				.execute().actionGet();
+		System.out.println("execute time = " + responseGet.getTook());
+		SearchHits myhitsGet = responseGet.getHits();
+		System.out.println("execute Hits = " + myhitsGet.getTotalHits());
+		
+		
+		MatchQueryBuilder queryBuilderPost = QueryBuilders.matchQuery("verb", "POST");
+		SearchResponse responsePost = client.prepareSearch("logstash-apacheaccesslog*") 
+				.setQuery(queryBuilderPost)
+				.execute().actionGet();
+		SearchHits myhitsPost = responsePost.getHits();
+
+		
+		MatchQueryBuilder queryBuilderPut = QueryBuilders.matchQuery("verb", "PUT");
+		SearchResponse responsePut = client.prepareSearch("logstash-apacheaccesslog*") 
+				.setQuery(queryBuilderPut)
+				.execute().actionGet();
+		SearchHits myhitsPut = responsePut.getHits();
+
+		
+		String json = "{\"key\":[\"GET\",\"POST\",\"PUT\"],\"value\":[\"" + myhitsGet.getTotalHits() + 
+				 "\",\"" + myhitsPost.getTotalHits() + "\",\"" + myhitsPut.getTotalHits() + "\"]}";
+		return json;
+	}
+	
+	@ResponseBody
 	@RequestMapping(value = "/tomcatRequestType")
 	public String tomcatRequestType(HttpServletRequest request) {
 		String requestType = (String) request.getParameter("requestType");
@@ -51,7 +86,6 @@ public class EsTomcatController {
 
 		SearchHits myhits = response.getHits();
 		System.out.println("execute Hits = " + myhits.getTotalHits());
-		
 		
 		return "";
 	}
