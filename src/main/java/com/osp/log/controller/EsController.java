@@ -15,13 +15,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.osp.log.util.ElasticUtil;
+import com.osp.log.util.ESUtil;
 
 @Controller
-public class EsController {
-
-	@Autowired
-	private ElasticUtil elasticUtil;
+public class ESController {
 
 	@ResponseBody
 	@RequestMapping(value = "/")
@@ -32,7 +29,7 @@ public class EsController {
 	@ResponseBody
 	@RequestMapping(value = "/test")
 	public String userInfo() {
-		TransportClient client = elasticUtil.getClient();
+		TransportClient client = ESUtil.getClient();
 		BoolQueryBuilder boolq = new BoolQueryBuilder();
 		String q = "examples";
 
