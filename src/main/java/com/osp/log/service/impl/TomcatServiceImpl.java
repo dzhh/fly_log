@@ -1,6 +1,8 @@
 package com.osp.log.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -9,15 +11,18 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Bucket;
 import org.joda.time.DateTimeZone;
 import org.springframework.stereotype.Service;
 
+import com.osp.log.model.Page;
 import com.osp.log.model.TomcatModel;
 import com.osp.log.service.BaseESService;
 import com.osp.log.service.TomcatService;
@@ -62,10 +67,12 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 		DateHistogramAggregationBuilder dateAgg = AggregationBuilders.dateHistogram("dateagg");  
 		 //定义分组的日期字段  
         dateAgg.field("@timestamp");
-        
+        ExtendedBounds extendedBounds = new ExtendedBounds(DateUtil.getPastDate(day), DateUtil.getDate());
+        dateAgg.extendedBounds(extendedBounds);
         dateAgg.dateHistogramInterval(DateHistogramInterval.DAY);
         DateTimeZone timeZone = DateTimeZone.forID("Asia/Shanghai");
         dateAgg.timeZone(timeZone);
+        dateAgg.format("yyyy-MM-dd");
 		
         
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp")
@@ -86,14 +93,14 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
         List<Bucket> buckets = (List<Bucket>) h.getBuckets();
         
         TomcatModel tomcat = new TomcatModel();
-        for(int i=day-buckets.size(); i>0 ; i--) {
-        	tomcat.addKey(DateUtil.getPastDate(i));
-        	tomcat.addValue(0);
-        }
+//        for(int i=day-buckets.size(); i>0 ; i--) {
+//        	tomcat.addKey(DateUtil.getPastDate(i));
+//        	tomcat.addValue(0);
+//        }
         //遍历分桶集  
         for(Bucket b : buckets){
             org.joda.time.DateTime key = (org.joda.time.DateTime)b.getKey();
-            tomcat.addKey(key.getYear() + "-" + key.getMonthOfYear() + "-" + key.getDayOfMonth());
+            tomcat.addKey(key.getMonthOfYear() + "-" + key.getDayOfMonth());
         	tomcat.addValue((int)b.getDocCount());
         }
 		return tomcat;
@@ -153,6 +160,34 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 		tomcat.addValue(myhits.getTotalHits());
 		
 		return tomcat;
+	}
+
+	@Override
+	public List<TomcatModel> tomcatRequestAll(Page page) {
+		TransportClient client = getClient();
+		List<TomcatModel> list = new ArrayList<TomcatModel>();
+		SearchResponse response = client.prepareSearch(getIndexName()) 
+				.setTypes(getIndexType())
+				.setFrom(page.getStart())
+				.setSize(page.getLength())
+				.execute().actionGet();
+		SearchHits myhits = response.getHits();
+		page.setRecordsFiltered((int)myhits.getTotalHits());
+		page.setRecordsTotal((int)myhits.getTotalHits());
+
+		int i = 1;
+		for(SearchHit hit : myhits.getHits()) {
+			TomcatModel tomcat = new TomcatModel();
+			Map<String, Object> map = hit.getSource();
+			tomcat.setClientip((String)map.get("clientip"));
+			tomcat.setResponse((String)map.get("response"));
+			tomcat.setMessage((String)map.get("message"));
+			tomcat.setType((String)map.get("verb"));
+			tomcat.setRowId(i);
+			list.add(tomcat);
+			i++;
+		}
+		return list;
 	}
 
 }

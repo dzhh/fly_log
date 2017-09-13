@@ -2,23 +2,29 @@ package test.osp.log.es;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.DocValueFormat.DateTime;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Bucket;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.joda.time.DateTimeZone;
 
@@ -36,36 +42,85 @@ public class Estest {
 //			testTomcat(client);
 //		}
 //		testTomcat(client);
-		testTomcatLog11(client);
+//		testTomcatLog11(client);
+//		testTomcatLog22(client);
+		testTomcatLogAll(client);
+	}
+	public static void testTomcatLogAll(TransportClient client) {
+		//设置一个叫	types 聚合，聚合字段是types（这里可以多个），然后 size = 0 标示全局
+		AggregationBuilder aggregation = AggregationBuilders.terms("response").field("response");
+        //查询索引
+    	SearchRequestBuilder srb = client.prepareSearch("logstash-apacheaccesslog*")
+    			.setTypes("logs");
+    	SearchResponse response = srb.execute().actionGet();
+		System.out.println("execute time = " + response.getTook());
+		SearchHits myhitsGet = response.getHits();
+		System.out.println("execute Hits = " + myhitsGet.getTotalHits());
+		System.out.println(response.toString());
 		
+		for(SearchHit hit : myhitsGet.getHits()) {
+			Map<String, Object> map = hit.getSource();
+			String response1 = (String) map.get("response");
+			System.out.println(response1);
+		}
 	}
 	
+	
+	public static void testTomcatLog22(TransportClient client) {
+		
+		//设置一个叫	types 聚合，聚合字段是types（这里可以多个），然后 size = 0 标示全局
+		AggregationBuilder aggregation = AggregationBuilders.terms("response").field("response");
+        //查询索引
+    	SearchRequestBuilder srb = client.prepareSearch("logstash-apacheaccesslog*")
+    			.setTypes("logs");
+    	srb.addAggregation(aggregation);
+		SearchResponse response = srb.execute().actionGet();
+		System.out.println("execute time = " + response.getTook());
+		SearchHits myhitsGet = response.getHits();
+		System.out.println("execute Hits = " + myhitsGet.getTotalHits());
+		System.out.println(response.toString());
+		Aggregations agg = response.getAggregations();		
+		//取到聚合数据
+		Terms terms = agg.get("response");
+		String type = terms.getType();
+	}
+		
+	
 	public static void testTomcatLog11(TransportClient client) {
+		
+		
+		int day = 1;
 		BoolQueryBuilder boolq = new BoolQueryBuilder();
 		//组装分组  
 		DateHistogramAggregationBuilder dateAgg = AggregationBuilders.dateHistogram("dateagg");  
 		 //定义分组的日期字段  
         dateAgg.field("@timestamp");
-        
+        dateAgg.minDocCount(0);
+        ExtendedBounds extendedBounds = new ExtendedBounds(DateUtil.getPastDate(day), DateUtil.getDate());
+        dateAgg.extendedBounds(extendedBounds);
         dateAgg.dateHistogramInterval(DateHistogramInterval.DAY);  
-//        dateAgg.timeZone("+8:00");  
-//        dateAgg.format("yyyy-MM-dd"); 
         DateTimeZone timeZone = DateTimeZone.forID("Asia/Shanghai");
         dateAgg.timeZone(timeZone);
-        dateAgg.format("MM-dd"); 
+        dateAgg.format("yyyy-MM-dd"); 
         
-        int day = 3;
+       
         System.out.println(DateUtil.getPastDate(day));
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp")
         		.from(DateUtil.getPastDate(day))
         		.to(DateUtil.getDate())
 				.includeLower(true) // 包括下界
 				.includeUpper(true); // 包括上界
+        
+		MatchQueryBuilder queryBuilderGet = QueryBuilders.matchQuery("response", "404");
+
+        
         //查询索引
     	SearchRequestBuilder srb = client.prepareSearch("logstash-apacheaccesslog*")
     			.setTypes("logs");
     	 //组装请求  
-    	srb.setQuery(rangeQueryBuilder).addAggregation(dateAgg);
+    	srb.setQuery(rangeQueryBuilder)
+    		.setQuery(queryBuilderGet)
+    		.addAggregation(dateAgg);
 
 	    /*******************************|日期查询代码 end|***********************************/
 	    
