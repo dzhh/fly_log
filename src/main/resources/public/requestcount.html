@@ -25,19 +25,68 @@
   <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
-   <title>最近访问日志</title>
-  <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-  <link href="css/dataTables.bootstrap.min.css" rel="stylesheet" media="screen">
-  <link href="css/jquery.dataTables.min.css" rel="stylesheet" media="screen">
+ <script src=js/echarts.min.js></script>
+  <script src=js/jquery-latest.js></script>
   
-</head>
- 
+  <title>tomcat请求方式统计</title>
+ </head>
+ <script type="text/javascript">
+ 	var loadData = function() {
+ 		var myChart = echarts.init(document.getElementById('chart'));
+ 		
+ 		  $.get('tomcatRequest', function (result) {
+ 			 console.log(result)
+ 			 var obj = JSON.parse(result);
+ 			 console.log(obj['key'])
+ 		     myChart.setOption({
+ 		         title: {
+ 		             text: 'Tomcat 请求'
+ 		         },
+ 		         tooltip: {},
+ 		         legend: {
+ 		             data:['请求']
+ 		         },
+ 		         xAxis: {
+ 		             data: obj['key']
+ 		         },
+ 		         yAxis: {},
+ 		         series: [{
+ 		             name: '请求',
+ 		             type: 'bar',
+ 		             data: obj['value']
+ 		         }]
+ 		     });
+ 		 }); 
+ 		 
+ 	// 指定图表的配置项和数据
+        /* var option = {
+            title: {
+                text: 'ECharts 入门示例'
+            },
+            tooltip: {},
+            legend: {
+                data:['销量']
+            },
+            xAxis: {
+                data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+            },
+            yAxis: {},
+            series: [{
+                name: '销量',
+                type: 'bar',
+                data: [5, 20, 36, 10, 10, 20]
+            }]
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option); */
+ 	}
+ </script>
 <body class="hold-transition skin-red sidebar-mini sidebar-collapse" ng-app="myApp"  ng-controller="menu" onload="loadData()">
 <div class="wrapper">
 
   <header class="main-header">
     <!-- Logo -->
-    <a href="search.html" class="logo">
+    <a href="index.html" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
       <span class="logo-mini" style="font-size: 20px"><i class="fa fa-home"></i></span>
       <!-- logo for regular state and mobile devices -->
@@ -65,30 +114,30 @@
       <ul class="sidebar-menu">
         <li class="header" style="color:white">主要功能</li>
         <li>
-           <a href="search_response.html"><i class="glyphicon glyphicon-search text-red"></i> <span  >日志搜索</span></a>
+           <a href="search.html"><i class="glyphicon glyphicon-search text-red"></i> <span  >日志搜索</span></a>
         </li>
         <li>
-           <a href="index.html">
+           <a href="logcollection.html">
              <i class="fa fa-flag text-green"></i> <span>近10天日志统计</span>  
           </a>
-	</li>
+        </li>
         <li>
-          <a href="event.html">
+          <a href="clientcount.html">
             <i class="fa fa-line-chart" style="color:#ff00e1"></i> <span>客户端访问统计</span>  
           </a>
         </li>
         <li>
-          <a href="eresponse.html">
+          <a href="wrongresponse.html">
             <i class="fa fa-flag text-green"></i> <span>http错误日志统计</span>  
           </a>
         </li>
-         <li>
-          <a href="tomcat.html">
+         <li class="active">
+          <a href="requestcount.html">
             <i class="fa fa-line-chart" style="color:#ff00e1"></i> <span>tomcat请求方式统计</span>  
           </a>
         </li>
-          <li class="active">
-          <a href="table.html">
+          <li>
+          <a href="latelyrequest.html">
             <i class="fa fa-flag text-green"></i> <span>最近访问日志</span>  
           </a>
         </li>
@@ -104,30 +153,17 @@
     <!-- Main content -->
     <section class="content">
         <div class="row ">
-            <div class="col-sm-12 col-xs-12">
+            <div class="col-sm-10 col-xs-10">
                 <div class="row">
                     <div class="col-sm-12" >
 
 
-              <div class="row-fluid">
-    <table id="example" class="display table-striped table-bordered table-hover table-condensed" cellspacing="0" width="100%">
-      <thead>
-        <tr>
-         	<th>rowId</th>
-	   		<th>type</th>
-	   		<th>clientip</th>
-	   		<th>response code</th>
-	        <th>message</th>
-	        <th>timestamp</th>
-        </tr>
-      </thead>
-    </table>
-  </div>
+                    <div id="chart" style="height: 400px; width: 400px; margin: 0"></div>
+
+
                       
                     </div>
-                </div>
-                
-               
+                </div>     
             </div>  
         </div>
     </section>
@@ -143,40 +179,47 @@
    </div>
   </footer>
 
-<!-- jQuery -->
-  <script type="text/javascript" charset="utf8" src="js/jquery-1.10.2.min.js"></script>
-  <!-- DataTables -->
-  <script type="text/javascript" charset="utf8" src="js/jquery.dataTables.js"></script>
-  <script src="js/jquery.js"></script>
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/jquery.dataTables.min.js"></script>
-  <script src="js/dataTables.bootstrap.min.js"></script>
-<script type="text/javascript">
-  $(document).ready(function() {
-	    $('#example').dataTable( {
-	        "processing": true,
-	        "serverSide": true,
-	        "ajax": "tomcatRequestAll",
-			"columns": [
-				{ "data": "rowId" },
-				{ "data": "type" },
-				{ "data": "clientip" },
-				{ "data": "response" },
-				{ "data": "message" },
-				{ "data": "timestamp" },
-			]
-	    } );
-	} );
-  </script>
+
   <!-- /.control-sidebar -->
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->
   <div class="control-sidebar-bg"></div>
 </div>
+<!-- ./wrapper -->
 
+<!-- jQuery 2.2.3 -->
+<script src="plugins/jQuery/jquery-2.2.3.min.js"></script>
+
+<!-- Bootstrap 3.3.6 -->
+<script src="bootstrap/js/bootstrap.min.js"></script>
 
 <!-- AdminLTE App -->
 <script src="dist/js/app.min.js"></script>
+
+
+<!-- 个人的插件 -->
+<script src="dist/js/shileiUtils.js"></script>
+<!-- angularJS -->
+<script src="http://cdn.bootcss.com/angular.js/1.5.8/angular.js"></script>
+<script src="http://cdn.bootcss.com/angular.js/1.5.8/angular-animate.js"></script>
+<script src="http://cdn.bootcss.com/angular.js/1.5.8/angular-sanitize.js"></script>
+
+<!-- 自己写的用于本页的 -->
+<script type="text/javascript" src="dist/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="dist/css/search.css">
+<!-- ip记录 -->
+<script type="text/javascript" src="http://pv.sohu.com/cityjson?ie=utf-8" charset="utf-8"></script>
+<script type="text/javascript">
+    var IPData=returnCitySN;
+    var cip=IPData['cip']; 
+    var cname=IPData['cname']; 
+</script>
+<!-- 分页功能 -->
+<script src="plugins/layui/layui.js" charset="utf-8"></script>
+<link rel="stylesheet" href="plugins/layui/css/layui.css"  media="all">
+
+<!-- 百度搜索框提示 -->
+<script  src="plugins/baidu/baidu.js"></script>
 
 </body>
 </html>
