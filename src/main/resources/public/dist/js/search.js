@@ -53,9 +53,9 @@ app.controller('menu', function($scope, $http) {
                 var layer = layui.layer
                 laypage({
                     cont: 'fenye',
-                    curr:data.page,
+                    curr:data.entity.page,
                     skin: '#dd4b39',
-                    pages: Math.ceil(data.total/data.pagesize),
+                    pages: Math.ceil(data.entity.total/data.entity.pagesize),
                     skip: true,
                     // curr: location.hash.replace('#!page=', ''),     //获取hash值为fenye的当前页
                     // hash: 'page' ,//自定义hash值

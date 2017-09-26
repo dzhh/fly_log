@@ -69,11 +69,6 @@ public class SearchServiceImpl implements SearchService {
 		hiBuilder.preTags("<span class=\'pointKey\'>");
 		hiBuilder.postTags("</span>");
 		hiBuilder.field("request", 50);
-		hiBuilder.field("verb", 20);
-		hiBuilder.field("clientip", 20);
-		hiBuilder.field("path", 20);
-		hiBuilder.field("response", 20);
-		hiBuilder.field("@timestamp", 20);
 		hiBuilder.field("message", 30);
 
 		/**
@@ -91,11 +86,6 @@ public class SearchServiceImpl implements SearchService {
 			TomcatModel tomcatModel = new TomcatModel();
 			String request = this.getHighlightFieldString(hit, "request");
 			String message = this.getHighlightFieldString(hit, "message");
-			String clientip = this.getHighlightFieldString(hit, "clientip");
-			String httpResponseCode = this.getHighlightFieldString(hit, "response");
-			String verb = this.getHighlightFieldString(hit, "verb");
-			String timestamp = this.getHighlightFieldString(hit, "@timestamp");
-			String path = this.getHighlightFieldString(hit, "path");
 			if (request.isEmpty()) {
 				tomcatModel.setRequest((String) map.get("request"));
 			} else {
@@ -106,31 +96,11 @@ public class SearchServiceImpl implements SearchService {
 			} else {
 				tomcatModel.setMessage(message);
 			}
-			if (clientip.isEmpty()) {
-				tomcatModel.setClientip((String) map.get("clientip"));
-			} else {
-				tomcatModel.setClientip(clientip);
-			}
-			if (httpResponseCode.isEmpty()) {
-				tomcatModel.setResponse((String) map.get("response"));
-			} else {
-				tomcatModel.setResponse(httpResponseCode);
-			}
-			if (verb.isEmpty()) {
-				tomcatModel.setType((String) map.get("verb"));
-			} else {
-				tomcatModel.setType(verb);
-			}
-			if (timestamp.isEmpty()) {
-				tomcatModel.setTimestamp((String) map.get("@timestamp"));
-			} else {
-				tomcatModel.setTimestamp(timestamp);
-			}
-			if (path.isEmpty()) {
-				tomcatModel.setPath((String) map.get("path"));
-			} else {
-				tomcatModel.setPath(path);
-			}
+			tomcatModel.setPath((String) map.get("path"));
+			tomcatModel.setClientip((String) map.get("clientip"));
+			tomcatModel.setResponse((String) map.get("response"));
+			tomcatModel.setType((String) map.get("verb"));
+			tomcatModel.setTimestamp((String) map.get("timestamp"));
 			newsList.add(tomcatModel);
 		}
 
