@@ -1,7 +1,9 @@
 package com.osp.log.controller;
 
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -28,6 +30,12 @@ public class EsTomcatController {
 
 	@Autowired
 	TomcatService tomcatService;
+	
+	@RequestMapping("/")  
+	public String index(){  
+		return "index.html"; 
+	}
+	
 	
 	
 	@ResponseBody
@@ -125,5 +133,17 @@ public class EsTomcatController {
 		TomcatModel tomcat = tomcatService.tomcatRequestType(requestType);
 		return JsonUtil.beanToJson(tomcat);
 	}
-
+	
+    private String message = "hi,hello world......";
+	@RequestMapping("/web")  
+	public String web(Map<String,Object> model){  
+		model.put("time",new Date());  
+		model.put("message",this.message);  
+		return "web";//返回的内容就是templetes下面文件的名称  
+	}
+	
+//	@RequestMapping("/table")  
+//	public String table(Map<String,Object> model){  
+//		return "table";//返回的内容就是templetes下面文件的名称  
+//	}
 }

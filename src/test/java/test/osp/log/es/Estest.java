@@ -82,7 +82,7 @@ public class Estest {
 		Aggregations agg = response.getAggregations();		
 		//取到聚合数据
 		Terms terms = agg.get("response");
-		String type = terms.getType();
+//		String type = terms.getType();
 	}
 		
 	
