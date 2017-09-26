@@ -5,14 +5,17 @@ import java.util.List;
 import com.osp.log.model.Page;
 import com.osp.log.model.TomcatModel;
 
-
 public interface TomcatService {
 
-	public TomcatModel tomcatTimeSearch(int day);
-	
-	public TomcatModel tomcatRequest();
-	
-	public TomcatModel tomcatRequestType(String type);
+	TomcatModel tomcatTimeSearch(int day);
 
-	public List<TomcatModel> tomcatRequestAll(Page page);
+	TomcatModel tomcatRequest();
+
+	TomcatModel tomcatRequestType(String type);
+
+	List<TomcatModel> tomcatRequestAll(Page page);
+	
+	List<TomcatModel> errorTomcatRequest(Page page);
+	
+	List<TomcatModel> clientRequestCount(Page page);
 }

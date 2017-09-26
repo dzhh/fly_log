@@ -4,25 +4,40 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class DateUtil {
 	
 	/**
-	 * 获取过去或者未来 任意天内的日期数组
+	 * 获取未来任意天内的日期数组
 	 * 
 	 * @param intervals
 	 *            intervals天内
 	 * @return 日期数组
 	 */
-	public static ArrayList<String> test(int intervals) {
-		ArrayList<String> pastDaysList = new ArrayList<>();
-		ArrayList<String> fetureDaysList = new ArrayList<>();
+	public static ArrayList<String> getFutureDaysList(int intervals) {
+		ArrayList<String> futureDaysList = new ArrayList<>();
 		for (int i = 0; i < intervals; i++) {
+			futureDaysList.add(getFetureDate(i));
+		}
+		return futureDaysList;
+	}
+	
+	/**
+	 * 获取过去任意天内的日期数组
+	 * 
+	 * @param intervals
+	 *            intervals天内
+	 * @return 日期数组
+	 */
+	public static ArrayList<String> getPastDaysList(int intervals) {
+		ArrayList<String> pastDaysList = new ArrayList<>();
+		for (int i = intervals; i > 0; i--) {
 			pastDaysList.add(getPastDate(i));
-			fetureDaysList.add(getFetureDate(i));
 		}
 		return pastDaysList;
 	}
+	
 	
 	/**
 	 * 获取当天
@@ -65,5 +80,12 @@ public class DateUtil {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		String result = format.format(today);
 		return result;
+	}
+	
+	public static void main(String[] args) {
+		List<String> data = DateUtil.getFutureDaysList(5);
+		for(String dString : data){
+			System.out.println(dString);
+		}
 	}
 }

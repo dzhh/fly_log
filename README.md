@@ -10,4 +10,10 @@ https://www.elastic.co/downloads/elasticsearch
 4. 启动logstash bin/logstash -f tomcat.conf
 
 启动spring 工程，访问
-http://127.0.0.1:8080/index.html
+http://127.0.0.1:9002/index.html
+
+clientip字段需要聚合，需要执行
+PUT megacorp/_mapping/employee/
+{"properties":{"clientip":{"type":"text","norms": false,"fielddata":true}}}
+
+

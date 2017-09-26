@@ -11,11 +11,15 @@ public class TomcatModel {
 	
 	private String clientip;
 	
+	private String request;
+	
 	private String response;
 	
 	private String timestamp;
 	
 	private String date;
+	
+	private String path;
 	
 	private int count;
 	
@@ -111,6 +115,22 @@ public class TomcatModel {
 
 	public void setCount(int count) {
 		this.count = count;
+	}
+
+	public String getRequest() {
+		return request;
+	}
+
+	public void setRequest(String request) {
+		this.request = request;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 }

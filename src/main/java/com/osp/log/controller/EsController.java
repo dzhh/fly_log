@@ -7,10 +7,7 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -18,13 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.osp.log.util.ESUtil;
 
 @Controller
-public class ESController {
-
-	@ResponseBody
-	@RequestMapping(value = "/")
-	public String test() {
-		return "test";
-	}
+public class EsController {
 
 	@ResponseBody
 	@RequestMapping(value = "/test")

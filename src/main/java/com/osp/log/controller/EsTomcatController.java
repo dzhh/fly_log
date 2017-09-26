@@ -24,7 +24,7 @@ import net.sf.json.JSONObject;
  *
  */
 @Controller
-public class ESTomcatController {
+public class EsTomcatController {
 
 	@Autowired
 	TomcatService tomcatService;
@@ -50,26 +50,72 @@ public class ESTomcatController {
 		return jso.toString();
 	}
 	
+	
+	@ResponseBody
+	@RequestMapping(value = "/errorTomcatRequest")
+	public String errorTomcatRequest(HttpServletRequest request) {
+		Page page = new Page();
+		page.setDraw(Integer.parseInt(request.getParameter("draw").toString()));
+		page.setStart(Integer.parseInt(request.getParameter("start").toString()));
+		page.setLength(Integer.parseInt(request.getParameter("length").toString()));
+		
+		List<TomcatModel> list = tomcatService.errorTomcatRequest(page);
+        String json = JsonUtil.beanListToJson(list);
+        JSONObject jso = new JSONObject();
+        jso.put("draw", page.getDraw());
+        jso.put("recordsTotal", page.getRecordsTotal());
+        jso.put("recordsFiltered", page.getRecordsFiltered());
+        jso.put("data", json);
+		return jso.toString();
+	}
+	
+	/**
+	 * 获取最近10天tomcat请求数
+	 * @param request
+	 * @return
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/tomcatRequestDate")
 	public String tomcatTimeSearch(HttpServletRequest request) {
-		//获取最近十天
-        int day = 10;
-		TomcatModel tomcat = tomcatService.tomcatTimeSearch(day);
-        String json = JsonUtil.beanToJson(tomcat);
-		return json;
+		TomcatModel tomcat = tomcatService.tomcatTimeSearch(10);
+		return JsonUtil.beanToJson(tomcat);
 	}
 	
+	/**
+	 * tomcat请求方法统计
+	 * @param request
+	 * @return
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/tomcatRequest")
 	public String tomcatRequest(HttpServletRequest request) {
 		TomcatModel tomcat = tomcatService.tomcatRequest();
+		return JsonUtil.beanToJson(tomcat);
+	}
+	
+	/**
+	 * tomcat客户端请求数统计
+	 * @param request
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/clientRequestCount")
+	public String clientRequestCount(HttpServletRequest request) {
+		Page page = new Page();
+		page.setDraw(Integer.parseInt(request.getParameter("draw").toString()));
+		page.setStart(Integer.parseInt(request.getParameter("start").toString()));
+		page.setLength(Integer.parseInt(request.getParameter("length").toString()));
+		System.out.println("start " + page.getStart() + " length" + page.getLength());
 		
-		String json = JsonUtil.beanToJson(tomcat);
-		return json;
-//		String json = "{\"key\":[\"GET\",\"POST\",\"PUT\"],\"value\":[\"" + myhitsGet.getTotalHits() + 
-//				 "\",\"" + myhitsPost.getTotalHits() + "\",\"" + myhitsPut.getTotalHits() + "\"]}";
-//		return json;
+		List<TomcatModel> list = tomcatService.clientRequestCount(page);
+        String json = JsonUtil.beanListToJson(list);
+        JSONObject jso = new JSONObject();
+        jso.put("draw", page.getDraw());
+        jso.put("recordsTotal", page.getRecordsTotal());
+        jso.put("recordsFiltered", page.getRecordsFiltered());
+        jso.put("data", json);
+        System.out.println(jso.toString());
+		return jso.toString();
 	}
 	
 	@ResponseBody
@@ -79,4 +125,5 @@ public class ESTomcatController {
 		TomcatModel tomcat = tomcatService.tomcatRequestType(requestType);
 		return JsonUtil.beanToJson(tomcat);
 	}
+
 }
