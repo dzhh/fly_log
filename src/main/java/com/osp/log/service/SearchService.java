@@ -1,5 +1,7 @@
 package com.osp.log.service;
 
+import javax.ws.rs.core.Response;
+
 import com.osp.log.model.SearchResultBean;
 /**
  * 2017-9-26
@@ -17,4 +19,14 @@ public interface SearchService {
 	 * @return
 	 */
 	SearchResultBean getSearchesult(String keyword,String ip,String city,Integer page,Integer pagesize);
+	/**
+	 * 获取搜索统计数据
+	 * @return
+	 */
+	Response getcount();
+	/**
+	 * 获取历史搜索记录
+	 * @return
+	 */
+	String getHistoryList(Integer page,Integer pagesize);
 }

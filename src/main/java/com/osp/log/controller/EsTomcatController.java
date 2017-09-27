@@ -115,7 +115,7 @@ public class EsTomcatController {
 		page.setLength(Integer.parseInt(request.getParameter("length").toString()));
 		System.out.println("start " + page.getStart() + " length" + page.getLength());
 		
-		List<TomcatModel> list = tomcatService.clientRequestCount(page);
+		List<TomcatModel> list = tomcatService.clientRequestCount();
         String json = JsonUtil.beanListToJson(list);
         JSONObject jso = new JSONObject();
         jso.put("draw", page.getDraw());

@@ -17,5 +17,5 @@ public interface TomcatService {
 	
 	List<TomcatModel> errorTomcatRequest(Page page);
 	
-	List<TomcatModel> clientRequestCount(Page page);
+	List<TomcatModel> clientRequestCount();
 }

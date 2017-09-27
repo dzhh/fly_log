@@ -1,13 +1,9 @@
  var app = angular.module('myApp', []);
 
-// var tabledata
-// var table = $('#table');
-
-
 app.controller('menu', function($scope, $http) {
 
     $.ajax({
-            url: 'http://'+ip+'/InformationSystemModeling/log/getCount',
+            url: '/search/getcount',
             type: 'get',
             dataType: 'json',
             cache:false,
@@ -15,10 +11,11 @@ app.controller('menu', function($scope, $http) {
             ,contentType:"application/x-www-form-urlencoded; charset=UTF-8" 
         })
         .done(function(data) {
-            $scope.avgUsetime=String(data.avgUsetime).substring(0,6)+"ms"
-            $scope.people=data.people
-            $scope.total=data.total
-            $scope.Top=data.Top
+        	console.log(data)
+            $scope.avgUsetime=data.entity.avgUsetime
+            $scope.people=data.entity.people
+            $scope.total=data.entity.total
+            $scope.Top=data.entity.Top
             $scope.$apply();
         })
 
@@ -36,8 +33,8 @@ app.controller('menu', function($scope, $http) {
                 sortOrder: "asc",     //排序方式
                 pageNumber:1,      //初始化加载第一页，默认第一页
                 pageSize: 10,      //每页的记录行数（*）
-                pageList: [10, 25, 50, 100],  //可供选择的每页的行数（*）
-                url: "http://"+ip+"/InformationSystemModeling/log/getHistoryList",//这个接口需要处理bootstrap table传递的固定参数
+                pageList: [10, 25, 50,100],  //可供选择的每页的行数（*）
+                url: "/search/getHistoryList",//这个接口需要处理bootstrap table传递的固定参数
                 contentType:"application/x-www-form-urlencoded; charset=UTF-8" ,
                 queryParamsType:'', //默认值为 'limit' ,在默认情况下 传给服务端的参数为：offset,limit,sort
                                     // 设置为 ''  在这种情况下传给服务器的参数为：pageSize,pageNumber
@@ -91,18 +88,7 @@ app.controller('menu', function($scope, $http) {
                         //row：当前行的数据
                         return value+"ms";
                     } 
-                }
-                // {
-                //     field: '用时',
-                //     title: '操作',
-                //     align: 'center',
-                //     formatter:function(value,row,index){
-                //         //通过formatter可以自定义列显示的内容
-                //         //value：当前field的值，即id
-                //         //row：当前行的数据
-                //         return '<a href="" >测试</a>';
-                //     } 
-                // }
+                }     
                 ],
                 pagination:true
             });

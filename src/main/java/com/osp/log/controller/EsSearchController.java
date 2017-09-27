@@ -13,35 +13,63 @@ import com.osp.log.service.SearchService;
 
 @Controller
 public class EsSearchController {
-	
+
 	@Autowired
 	SearchService searchService;
 
 	/**
 	 * 搜索关键字
-	 * @param q 关键字
+	 * 
+	 * @param q
+	 *            关键字
 	 * @param newsSource
 	 * @param newsType
-	 * @param page 页码
-	 * @param pagesize 页数大小
-	 * @param ip 请求客户端ip
-	 * @param city 请求客户端所在城市
+	 * @param page
+	 *            页码
+	 * @param pagesize
+	 *            页数大小
+	 * @param ip
+	 *            请求客户端ip
+	 * @param city
+	 *            请求客户端所在城市
 	 * @return
 	 */
 	@RequestMapping(value = "/search/get")
 	@ResponseBody
-	public  Response get(@DefaultValue("") @QueryParam("q") String q, 
+	public Response get(@DefaultValue("") @QueryParam("q") String q,
 			@DefaultValue("1") @QueryParam("page") Integer page,
 			@DefaultValue("10") @QueryParam("pagesize") Integer pagesize,
-			@DefaultValue("0.0.0.0") @QueryParam("ip") String ip,
-			@DefaultValue("濮阳") @QueryParam("city") String city) {
+			@DefaultValue("0.0.0.0") @QueryParam("ip") String ip, @DefaultValue("濮阳") @QueryParam("city") String city) {
 
 		/*
 		 * 获取ip
 		 */
 		System.out.println("ip=" + ip + " city=" + city);
 		return Response.status(200).entity(searchService.getSearchesult(q, ip, city, page, pagesize)).build();
+	}
 
+	/**
+	 * 获取搜索统计数据
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/search/getcount")
+	@ResponseBody
+	public Response getcount() {
+		return searchService.getcount();
+	}
+
+	/**
+	 * 获取搜索历史
+	 * @param page
+	 * @param pagesize
+	 * @return
+	 */
+	@RequestMapping(value = "/search/getHistoryList")
+	@ResponseBody
+	public String getHistoryList(@DefaultValue("1") @QueryParam("pageNumber") Integer page,
+			@DefaultValue("10") @QueryParam("pageSize") Integer pagesize) {
+		return searchService.getHistoryList(page, pagesize);
 	}
 
 }

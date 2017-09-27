@@ -119,8 +119,11 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 		return tomcat;
 	}
 
+	/**
+	 * 客户端访问次数统计-前10
+	 */
 	@Override
-	public List<TomcatModel> clientRequestCount(Page page) {
+	public List<TomcatModel> clientRequestCount() {
 		List<TomcatModel> list = new ArrayList<TomcatModel>();
 		TransportClient client = this.getClient();
 		TermsAggregationBuilder aggregation = AggregationBuilders.terms("cilentip_count").field("clientip");
@@ -136,7 +139,9 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 				tomcat.setCount((int) bucket.getDocCount());
 				tomcat.setRowId(i);
 				list.add(tomcat);
-				i++;
+				if((i++)>10){
+					break;
+				}
 			}
 		}
 		return list;
@@ -240,5 +245,4 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 	public String getIndexType() {
 		return INDEX_TYPE;
 	}
-
 }
