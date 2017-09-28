@@ -12,17 +12,20 @@ public class SearchModel {
 	private String clientip;
 	private String city;
 	private Integer usetime;
+	private long createDate;
 
 	public SearchModel() {
 		super();
 	}
 
-	public SearchModel(String message, String timestamp, String clientip, String city, Integer usetime) {
+	public SearchModel(String message, String timestamp, String clientip, String city, Integer usetime,
+			long createDate) {
 		this.message = message;
 		this.timestamp = timestamp;
 		this.clientip = clientip;
 		this.city = city;
 		this.usetime = usetime;
+		this.createDate = createDate;
 	}
 
 	public String getMessage() {
@@ -48,7 +51,7 @@ public class SearchModel {
 	public void setClientip(String clientip) {
 		this.clientip = clientip;
 	}
-
+	
 	public String getCity() {
 		return city;
 	}
@@ -63,5 +66,13 @@ public class SearchModel {
 
 	public void setUsetime(Integer usetime) {
 		this.usetime = usetime;
+	}
+
+	public long getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(long createDate) {
+		this.createDate = createDate;
 	}
 }

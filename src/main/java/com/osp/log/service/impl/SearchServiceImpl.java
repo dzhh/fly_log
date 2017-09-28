@@ -24,6 +24,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.aggregations.metrics.avg.AvgAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Service;
 
 import com.osp.common.json.JsonUtil;
@@ -114,7 +115,7 @@ public class SearchServiceImpl implements SearchService {
 		 */
 		String usetime = response.getTook().toString();
 		String json = JsonUtil.beanToJson(new SearchModel(keyword, TimeUtils.getCurrentTime(), ip, city,
-				Integer.parseInt(usetime.substring(0, usetime.length() - 2))));
+				Integer.parseInt(usetime.substring(0, usetime.length() - 2)),System.currentTimeMillis()));
 		client.prepareIndex(ESConfig.SEARCHINDEX, ESConfig.SEARCHTYPE).setSource(json, XContentType.JSON).get();
 		/**
 		 * 开始存储结果
@@ -140,7 +141,8 @@ public class SearchServiceImpl implements SearchService {
 		TermsAggregationBuilder agg_message = AggregationBuilders.terms("agg_message").field("message");
 		SearchResponse response = client.prepareSearch(ESConfig.SEARCHINDEX).setTypes(ESConfig.SEARCHTYPE)
 				.addAggregation(agg_clientip).addAggregation(avg_usetime).addAggregation(agg_message)
-				.setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
+				.setQuery(QueryBuilders.matchAllQuery())
+				.execute().actionGet();
 		/**
 		 * 搜索次数
 		 */
@@ -182,6 +184,7 @@ public class SearchServiceImpl implements SearchService {
 		TransportClient client = getClient();
 		SearchResponse response = client.prepareSearch(ESConfig.SEARCHINDEX).setTypes(ESConfig.SEARCHTYPE)
 				.setQuery(QueryBuilders.matchAllQuery())
+				.addSort("createDate", SortOrder.DESC)
 				.setFrom(pagesize * (page - 1)).setSize(pagesize)
 				.get();
 		SearchHits myhits = response.getHits();
@@ -233,5 +236,4 @@ public class SearchServiceImpl implements SearchService {
 			this.count = count;
 		}
 	}
-
 }
