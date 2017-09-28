@@ -46,6 +46,7 @@ public class SearchServiceImpl implements SearchService {
 
 	public static final String INDEX_NAME = "logstash-apacheaccesslog*"; // 索引名称
 	public static final String INDEX_TYPE = "logs"; // 索引类型
+
 	/**
 	 * 关键字搜索
 	 * 
@@ -111,12 +112,14 @@ public class SearchServiceImpl implements SearchService {
 			newsList.add(tomcatModel);
 		}
 		/**
-		 * 记录本次客户端查询
+		 * 记录本次客户端查询：翻页不存储
 		 */
 		String usetime = response.getTook().toString();
-		String json = JsonUtil.beanToJson(new SearchModel(keyword, TimeUtils.getCurrentTime(), ip, city,
-				Integer.parseInt(usetime.substring(0, usetime.length() - 2)),System.currentTimeMillis()));
-		client.prepareIndex(ESConfig.SEARCHINDEX, ESConfig.SEARCHTYPE).setSource(json, XContentType.JSON).get();
+		if (page == 1) {
+			String json = JsonUtil.beanToJson(new SearchModel(keyword, TimeUtils.getCurrentTime(), ip, city,
+					Integer.parseInt(usetime.substring(0, usetime.length() - 2)), System.currentTimeMillis()));
+			client.prepareIndex(ESConfig.SEARCHINDEX, ESConfig.SEARCHTYPE).setSource(json, XContentType.JSON).get();
+		}
 		/**
 		 * 开始存储结果
 		 */
@@ -141,8 +144,7 @@ public class SearchServiceImpl implements SearchService {
 		TermsAggregationBuilder agg_message = AggregationBuilders.terms("agg_message").field("message");
 		SearchResponse response = client.prepareSearch(ESConfig.SEARCHINDEX).setTypes(ESConfig.SEARCHTYPE)
 				.addAggregation(agg_clientip).addAggregation(avg_usetime).addAggregation(agg_message)
-				.setQuery(QueryBuilders.matchAllQuery())
-				.execute().actionGet();
+				.setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
 		/**
 		 * 搜索次数
 		 */
@@ -183,10 +185,8 @@ public class SearchServiceImpl implements SearchService {
 		LinkedList<Map<String, Object>> result = new LinkedList<>();
 		TransportClient client = getClient();
 		SearchResponse response = client.prepareSearch(ESConfig.SEARCHINDEX).setTypes(ESConfig.SEARCHTYPE)
-				.setQuery(QueryBuilders.matchAllQuery())
-				.addSort("createDate", SortOrder.DESC)
-				.setFrom(pagesize * (page - 1)).setSize(pagesize)
-				.get();
+				.setQuery(QueryBuilders.matchAllQuery()).addSort("createDate", SortOrder.DESC)
+				.setFrom(pagesize * (page - 1)).setSize(pagesize).get();
 		SearchHits myhits = response.getHits();
 		for (SearchHit hit : myhits) {
 			Map<String, Object> hitmap = hit.getSource();
@@ -202,7 +202,7 @@ public class SearchServiceImpl implements SearchService {
 		HashMap<String, Object> RealReult = new HashMap<>();
 		RealReult.put("rows", result);
 		RealReult.put("total", myhits.getTotalHits());
-		return  JsonUtil.beanToJson(RealReult);
+		return JsonUtil.beanToJson(RealReult);
 	}
 
 	public String getHighlightFieldString(SearchHit hit, String field) {
@@ -220,18 +220,22 @@ public class SearchServiceImpl implements SearchService {
 		return ESUtil.getClient();
 	}
 
-	class TopWord{
+	class TopWord {
 		private String _id;
 		private int count;
+
 		public String get_id() {
 			return _id;
 		}
+
 		public void set_id(String _id) {
 			this._id = _id;
 		}
+
 		public int getCount() {
 			return count;
 		}
+
 		public void setCount(int count) {
 			this.count = count;
 		}
