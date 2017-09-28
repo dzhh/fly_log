@@ -33,7 +33,7 @@ app.controller('menu', function($scope, $http) {
                 sortOrder: "asc",     //排序方式
                 pageNumber:1,      //初始化加载第一页，默认第一页
                 pageSize: 10,      //每页的记录行数（*）
-                pageList: [10, 25, 50,100],  //可供选择的每页的行数（*）
+                pageList: [10, 25, 50, 100],  //可供选择的每页的行数（*）
                 url: "/search/getHistoryList",//这个接口需要处理bootstrap table传递的固定参数
                 contentType:"application/x-www-form-urlencoded; charset=UTF-8" ,
                 queryParamsType:'', //默认值为 'limit' ,在默认情况下 传给服务端的参数为：offset,limit,sort

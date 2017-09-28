@@ -19,20 +19,14 @@ app.controller('menu', function($scope, $http) {
     $scope.search=function(herenewsSource,herenewstype){
         if ($scope.q=='') { return}
         $("#newlist").hide()
-        if (herenewsSource!='') {
-            $scope.newsSource=herenewsSource
-        }
-        if (herenewstype!='') {
-            $scope.newsType=herenewstype
-        }
         $("#wait").show()
         $.ajax({
         	url: '/search/get',
             type: 'get',
             dataType: 'json',
             cache:false,
-            data: {q: $scope.q,ip:cip,city:cname,page:$scope.page,pagesize:$scope.pagesize}
-                        ,contentType:"application/x-www-form-urlencoded; charset=UTF-8" 
+            data: {q: $scope.q,ip:cip,city:cname,page:$scope.page,pagesize:$scope.pagesize},
+            contentType:"application/x-www-form-urlencoded; charset=UTF-8" 
 
         })
         .done(function(data) {

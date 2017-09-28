@@ -24,8 +24,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.aggregations.metrics.avg.AvgAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Service;
 
 import com.osp.common.json.JsonUtil;
@@ -47,9 +45,6 @@ public class SearchServiceImpl implements SearchService {
 
 	public static final String INDEX_NAME = "logstash-apacheaccesslog*"; // 索引名称
 	public static final String INDEX_TYPE = "logs"; // 索引类型
-	private Integer page;
-	private Integer pagesize;
-
 	/**
 	 * 关键字搜索
 	 * 
@@ -67,8 +62,6 @@ public class SearchServiceImpl implements SearchService {
 	 */
 	@Override
 	public SearchResultBean getSearchesult(String keyword, String ip, String city, Integer page, Integer pagesize) {
-
-		initPageParam(page, pagesize);
 		TransportClient client = ESUtil.getClient();
 		BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
 		if (keyword.isEmpty()) {
@@ -90,7 +83,7 @@ public class SearchServiceImpl implements SearchService {
 		 */
 		SearchResponse response = client.prepareSearch(SearchServiceImpl.INDEX_NAME)
 				.setTypes(SearchServiceImpl.INDEX_TYPE).setSearchType(SearchType.DEFAULT).setQuery(boolQueryBuilder)
-				.setFrom(this.pagesize * (this.page - 1)).setSize(this.pagesize).highlighter(hiBuilder).setExplain(true) // 设置是否按查询匹配度排序
+				.setFrom(pagesize * (page - 1)).setSize(pagesize).highlighter(hiBuilder).setExplain(true) // 设置是否按查询匹配度排序
 				.get();
 		SearchHits myhits = response.getHits();
 		LinkedList<TomcatModel> newsList = new LinkedList<>();
@@ -127,8 +120,8 @@ public class SearchServiceImpl implements SearchService {
 		 * 开始存储结果
 		 */
 		SearchResultBean searchResult = new SearchResultBean();
-		searchResult.setPage(this.page);
-		searchResult.setPagesize(this.pagesize);
+		searchResult.setPage(page);
+		searchResult.setPagesize(pagesize);
 		searchResult.setTotal(myhits.getTotalHits());
 		searchResult.setUsetime(usetime);
 		searchResult.setNewsList(newsList);
@@ -188,8 +181,8 @@ public class SearchServiceImpl implements SearchService {
 		LinkedList<Map<String, Object>> result = new LinkedList<>();
 		TransportClient client = getClient();
 		SearchResponse response = client.prepareSearch(ESConfig.SEARCHINDEX).setTypes(ESConfig.SEARCHTYPE)
-				.setQuery(QueryBuilders.matchAllQuery()).addSort(SortBuilders.fieldSort("timestamp").order(SortOrder.DESC))
-				.setFrom(this.pagesize * (this.page - 1)).setSize(this.pagesize)
+				.setQuery(QueryBuilders.matchAllQuery())
+				.setFrom(pagesize * (page - 1)).setSize(pagesize)
 				.get();
 		SearchHits myhits = response.getHits();
 		for (SearchHit hit : myhits) {
@@ -224,27 +217,6 @@ public class SearchServiceImpl implements SearchService {
 		return ESUtil.getClient();
 	}
 
-	public Integer getPage() {
-		return page;
-	}
-
-	public void setPage(Integer page) {
-		this.page = page;
-	}
-
-	public Integer getPagesize() {
-		return pagesize;
-	}
-
-	public void setPagesize(Integer pagesize) {
-		this.pagesize = pagesize;
-	}
-
-	public void initPageParam(Integer page, Integer pagesize) {
-		this.page = (page == null || page < 1) ? 1 : page;
-		this.pagesize = (pagesize == null || pagesize < 1) ? 10 : pagesize;
-	}
-	
 	class TopWord{
 		private String _id;
 		private int count;

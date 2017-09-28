@@ -1,12 +1,11 @@
 package com.osp.log.controller;
 
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.osp.log.service.SearchService;
@@ -36,15 +35,15 @@ public class EsSearchController {
 	 */
 	@RequestMapping(value = "/search/get")
 	@ResponseBody
-	public Response get(@DefaultValue("") @QueryParam("q") String q,
-			@DefaultValue("1") @QueryParam("page") Integer page,
-			@DefaultValue("10") @QueryParam("pagesize") Integer pagesize,
-			@DefaultValue("0.0.0.0") @QueryParam("ip") String ip, @DefaultValue("濮阳") @QueryParam("city") String city) {
-
+	public Response get(@RequestParam(value = "q", defaultValue = "") String q,
+			@RequestParam(value = "page", defaultValue = "1") Integer page,
+			@RequestParam(value = "pagesize", defaultValue = "10") Integer pagesize,
+			@RequestParam(value = "ip", defaultValue = "0.0.0.0") String ip,
+			@RequestParam(value = "city", defaultValue = "北京市") String city) {
 		/*
 		 * 获取ip
 		 */
-		System.out.println("ip=" + ip + " city=" + city);
+		System.out.println("q=" + q + " page=" + page + " pagesize=" + pagesize + " ip=" + ip + " city=" + city);
 		return Response.status(200).entity(searchService.getSearchesult(q, ip, city, page, pagesize)).build();
 	}
 
@@ -61,14 +60,16 @@ public class EsSearchController {
 
 	/**
 	 * 获取搜索历史
+	 * 
 	 * @param page
 	 * @param pagesize
 	 * @return
 	 */
 	@RequestMapping(value = "/search/getHistoryList")
 	@ResponseBody
-	public String getHistoryList(@DefaultValue("1") @QueryParam("pageNumber") Integer page,
-			@DefaultValue("10") @QueryParam("pageSize") Integer pagesize) {
+	public String getHistoryList(@RequestParam(value = "pageNumber", defaultValue = "1") Integer page,
+			@RequestParam(value = "pageSize", defaultValue = "10") Integer pagesize) {
+	    System.out.println("page="+page+" pagesize="+pagesize);
 		return searchService.getHistoryList(page, pagesize);
 	}
 
