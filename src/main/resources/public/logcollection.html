@@ -34,7 +34,7 @@
  	var loadData = function() {
  		var myChart = echarts.init(document.getElementById('chart'));
  		
- 		  $.get('tomcatRequestDate', function (result) {
+ 		  $.get('tomcatRequestDate',{index:"logstash-lcfwzx"}, function (result) {
  			 console.log(result)
  			 var obj = JSON.parse(result);
  			 console.log(obj['key'])

@@ -154,7 +154,10 @@
 	    $('#example').dataTable( {
 	        "processing": true,
 	        "serverSide": true,
-	        "ajax": "clientRequestCount",
+	        "ajax": {
+	        	url:"clientRequestCount",
+	        	data:{"index":"logstash-lcfwzx"}
+	        },
 			"columns": [
 				{ "data": "rowId" },			
 				{ "data": "clientip" },

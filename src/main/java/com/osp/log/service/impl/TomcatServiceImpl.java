@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
@@ -43,79 +44,88 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 	}
 
 	@Override
-	public TomcatModel tomcatTimeSearch(int day) {
+	public TomcatModel tomcatTimeSearch(int day, String index) {
+		if (index.isEmpty() == true) {
+			return null;
+		}
 		// 查询索引
 		TransportClient client = this.getClient();
-		SearchRequestBuilder srb = client.prepareSearch(this.getIndexName()).setTypes(getIndexType());
-
-		// 组装分组
-		DateHistogramAggregationBuilder dateAgg = AggregationBuilders.dateHistogram("dateagg");
-		// 定义分组的日期字段
-		dateAgg.field("@timestamp");
-		ExtendedBounds extendedBounds = new ExtendedBounds(DateUtil.getPastDate(day), DateUtil.getDate());
-		dateAgg.extendedBounds(extendedBounds);
-		dateAgg.dateHistogramInterval(DateHistogramInterval.DAY);
-		DateTimeZone timeZone = DateTimeZone.forID("Asia/Shanghai");
-		dateAgg.timeZone(timeZone);
-		dateAgg.format("yyyy-MM-dd");
-
-		RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp").from(DateUtil.getPastDate(day))
-				.to(DateUtil.getDate()).includeLower(true) // 包括下界
-				.includeUpper(true); // 包括上界
-
-		// 组装请求
-		srb.setQuery(rangeQueryBuilder).addAggregation(dateAgg);
-
-		// 查询
-		SearchResponse response = srb.execute().actionGet();
-		// 获取一级聚合数据
-		Histogram h = response.getAggregations().get("dateagg");
-		// 得到一级聚合结果里面的分桶集合
-		// org.elasticsearch.search.aggregations.bucket.histogram
-		List<Bucket> buckets = (List<Bucket>) h.getBuckets();
-
 		TomcatModel tomcat = new TomcatModel();
-		// for(int i=day-buckets.size(); i>0 ; i--) {
-		// tomcat.addKey(DateUtil.getPastDate(i));
-		// tomcat.addValue(0);
-		// }
-		// 遍历分桶集
-		for (Bucket b : buckets) {
-			org.joda.time.DateTime key = (org.joda.time.DateTime) b.getKey();
-			tomcat.addKey(key.getMonthOfYear() + "-" + key.getDayOfMonth());
-			tomcat.addValue((int) b.getDocCount());
+		if (index.isEmpty() == true) {
+			return null;
+		}
+		try {
+			SearchRequestBuilder srb = client.prepareSearch(index).setTypes(getIndexType());
+			// 组装分组
+			DateHistogramAggregationBuilder dateAgg = AggregationBuilders.dateHistogram("dateagg");
+			// 定义分组的日期字段
+			dateAgg.field("@timestamp");
+			ExtendedBounds extendedBounds = new ExtendedBounds(DateUtil.getPastDate(day), DateUtil.getDate());
+			dateAgg.extendedBounds(extendedBounds);
+			dateAgg.dateHistogramInterval(DateHistogramInterval.DAY);
+			DateTimeZone timeZone = DateTimeZone.forID("Asia/Shanghai");
+			dateAgg.timeZone(timeZone);
+			dateAgg.format("yyyy-MM-dd");
+
+			RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp").from(DateUtil.getPastDate(day))
+					.to(DateUtil.getDate()).includeLower(true) // 包括下界
+					.includeUpper(true); // 包括上界
+
+			// 组装请求
+			srb.setQuery(rangeQueryBuilder).addAggregation(dateAgg);
+
+			// 查询
+			SearchResponse response = srb.execute().actionGet();
+			// 获取一级聚合数据
+			Histogram h = response.getAggregations().get("dateagg");
+			// 得到一级聚合结果里面的分桶集合
+			List<Bucket> buckets = (List<Bucket>) h.getBuckets();
+
+			// 遍历分桶集
+			for (Bucket b : buckets) {
+				org.joda.time.DateTime key = (org.joda.time.DateTime) b.getKey();
+				tomcat.addKey(key.getMonthOfYear() + "-" + key.getDayOfMonth());
+				tomcat.addValue((int) b.getDocCount());
+			}
+		} catch (IndexNotFoundException e) {
+			System.err.println("此索引不存在!");
 		}
 		return tomcat;
 	}
 
 	@Override
-	public TomcatModel tomcatRequest() {
+	public TomcatModel tomcatRequest(String index) {
+		if (index.isEmpty() == true) {
+			return null;
+		}
 		// 查询索引
 		TransportClient client = getClient();
 		TomcatModel tomcat = new TomcatModel();
-		MatchQueryBuilder queryBuilderGet = QueryBuilders.matchQuery("verb", "GET");
-		// GET POST ..
-		SearchResponse responseGet = client.prepareSearch(getIndexName()).setTypes(getIndexType())
-				.setQuery(queryBuilderGet).execute().actionGet();
-		// System.out.println("execute time = " + responseGet.getTook());
-		SearchHits myhitsGet = responseGet.getHits();
-		// System.out.println("execute Hits = " + myhitsGet.getTotalHits());
-		tomcat.addKey("GET");
-		tomcat.addValue(myhitsGet.getTotalHits());
+		try {
+			MatchQueryBuilder queryBuilderGet = QueryBuilders.matchQuery("verb", "GET");
+			// GET POST ..
+			SearchResponse responseGet = client.prepareSearch(index).setTypes(getIndexType()).setQuery(queryBuilderGet)
+					.execute().actionGet();
+			SearchHits myhitsGet = responseGet.getHits();
+			tomcat.addKey("GET");
+			tomcat.addValue(myhitsGet.getTotalHits());
 
-		MatchQueryBuilder queryBuilderPost = QueryBuilders.matchQuery("verb", "POST");
-		SearchResponse responsePost = client.prepareSearch(getIndexName()).setTypes(getIndexType())
-				.setQuery(queryBuilderPost).execute().actionGet();
-		SearchHits myhitsPost = responsePost.getHits();
-		tomcat.addKey("POST");
-		tomcat.addValue(myhitsPost.getTotalHits());
+			MatchQueryBuilder queryBuilderPost = QueryBuilders.matchQuery("verb", "POST");
+			SearchResponse responsePost = client.prepareSearch(index).setTypes(getIndexType())
+					.setQuery(queryBuilderPost).execute().actionGet();
+			SearchHits myhitsPost = responsePost.getHits();
+			tomcat.addKey("POST");
+			tomcat.addValue(myhitsPost.getTotalHits());
 
-		MatchQueryBuilder queryBuilderPut = QueryBuilders.matchQuery("verb", "PUT");
-		SearchResponse responsePut = client.prepareSearch(getIndexName()).setQuery(queryBuilderPut).execute()
-				.actionGet();
-		SearchHits myhitsPut = responsePut.getHits();
-		tomcat.addKey("PUT");
-		tomcat.addValue(myhitsPut.getTotalHits());
+			MatchQueryBuilder queryBuilderPut = QueryBuilders.matchQuery("verb", "PUT");
+			SearchResponse responsePut = client.prepareSearch(index).setTypes(getIndexType()).setQuery(queryBuilderPut)
+					.execute().actionGet();
+			SearchHits myhitsPut = responsePut.getHits();
+			tomcat.addKey("PUT");
+			tomcat.addValue(myhitsPut.getTotalHits());
+		} catch (IndexNotFoundException e) {
+			System.err.println("此索引不存在!");
+		}
 		return tomcat;
 	}
 
@@ -123,26 +133,31 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 	 * 客户端访问次数统计-前10
 	 */
 	@Override
-	public List<TomcatModel> clientRequestCount() {
+	public List<TomcatModel> clientRequestCount(String index) {
+		if (index.isEmpty() == true) {
+			return null;
+		}
 		List<TomcatModel> list = new ArrayList<TomcatModel>();
 		TransportClient client = this.getClient();
-		TermsAggregationBuilder aggregation = AggregationBuilders.terms("cilentip_count").field("clientip");
-		SearchResponse response = client.prepareSearch(getIndexName()).setTypes(getIndexType())
-				.addAggregation(aggregation).execute().actionGet();
-		Terms terms = response.getAggregations().get("cilentip_count");
-		List<Terms.Bucket> buckets = (List<Terms.Bucket>) terms.getBuckets();
-		int i = 1;
-		for (Terms.Bucket bucket : buckets) {
-			TomcatModel tomcat = new TomcatModel();
-			if (isboolIp((String) bucket.getKey()) == true) {// 过滤掉不规则的ipv4
-				tomcat.setClientip((String) bucket.getKey());
-				tomcat.setCount((int) bucket.getDocCount());
-				tomcat.setRowId(i);
-				list.add(tomcat);
-				if((i++)>10){
-					break;
+		try {
+			TermsAggregationBuilder aggregation = AggregationBuilders.terms("cilentip_count").field("clientip");
+			SearchResponse response = client.prepareSearch(index).setTypes(getIndexType()).addAggregation(aggregation)
+					.execute().actionGet();
+			Terms terms = response.getAggregations().get("cilentip_count");
+			List<Terms.Bucket> buckets = (List<Terms.Bucket>) terms.getBuckets();
+			int i = 1;
+			for (Terms.Bucket bucket : buckets) {
+				TomcatModel tomcat = new TomcatModel();
+				if (isboolIp((String) bucket.getKey()) == true) {// 过滤掉不规则的ipv4
+					tomcat.setClientip((String) bucket.getKey());
+					tomcat.setCount((int) bucket.getDocCount());
+					tomcat.setRowId(i);
+					list.add(tomcat);
+					i++;
 				}
 			}
+		} catch (IndexNotFoundException e) {
+			System.err.println("此索引不存在!");
 		}
 		return list;
 	}
@@ -158,46 +173,58 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 	}
 
 	@Override
-	public TomcatModel tomcatRequestType(String type) {
+	public TomcatModel tomcatRequestType(String requestType, String index) {
+		if (index.isEmpty() == true) {
+			return null;
+		}
 		TransportClient client = getClient();
 		TomcatModel tomcat = new TomcatModel();
-		MatchQueryBuilder queryBuilder = QueryBuilders.matchQuery("verb", type);
-		// GET POST ..
-		SearchResponse response = client.prepareSearch(getIndexName()).setTypes(getIndexType())
-				// .setQuery(QueryBuilders.termQuery("verb", requestType))
-				// .setQuery(QueryBuilders.termQuery("verb", "GET"))
-				// .setQuery(QueryBuilders.termQuery("clientip",
-				// "192.168.206.1"))
-				.setQuery(queryBuilder).execute().actionGet();
-		SearchHits myhits = response.getHits();
-		tomcat.addKey(type);
-		tomcat.addValue(myhits.getTotalHits());
-
+		try {
+			MatchQueryBuilder queryBuilder = QueryBuilders.matchQuery("verb", requestType);
+			// GET POST ..
+			SearchResponse response = client.prepareSearch(index).setTypes(getIndexType()).setQuery(queryBuilder)
+					.execute().actionGet();
+			SearchHits myhits = response.getHits();
+			tomcat.addKey(requestType);
+			tomcat.addValue(myhits.getTotalHits());
+		} catch (IndexNotFoundException e) {
+			System.err.println("此索引不存在!");
+		}
 		return tomcat;
 	}
 
+	/**
+	 * tomcat请求展示
+	 */
 	@Override
-	public List<TomcatModel> tomcatRequestAll(Page page) {
+	public List<TomcatModel> tomcatRequestAll(Page page, String index) {
+		if (index.isEmpty() == true) {
+			return null;
+		}
 		TransportClient client = getClient();
 		List<TomcatModel> list = new ArrayList<TomcatModel>();
-		SearchResponse response = client.prepareSearch(getIndexName()).setTypes(getIndexType()).setFrom(page.getStart())
-				.setSize(page.getLength()).execute().actionGet();
-		SearchHits myhits = response.getHits();
-		page.setRecordsFiltered((int) myhits.getTotalHits());
-		page.setRecordsTotal((int) myhits.getTotalHits());
+		try {
+			SearchResponse response = client.prepareSearch(index).setTypes(getIndexType()).setFrom(page.getStart())
+					.setSize(page.getLength()).execute().actionGet();
+			SearchHits myhits = response.getHits();
+			page.setRecordsFiltered((int) myhits.getTotalHits());
+			page.setRecordsTotal((int) myhits.getTotalHits());
 
-		int i = 1;
-		for (SearchHit hit : myhits.getHits()) {
-			TomcatModel tomcat = new TomcatModel();
-			Map<String, Object> map = hit.getSource();
-			tomcat.setClientip((String) map.get("clientip"));
-			tomcat.setResponse((String) map.get("response"));
-			tomcat.setMessage((String) map.get("message"));
-			tomcat.setType((String) map.get("verb"));
-			tomcat.setTimestamp((String) map.get("timestamp"));
-			tomcat.setRowId(i);
-			list.add(tomcat);
-			i++;
+			int i = 1;
+			for (SearchHit hit : myhits.getHits()) {
+				TomcatModel tomcat = new TomcatModel();
+				Map<String, Object> map = hit.getSource();
+				tomcat.setClientip((String) map.get("clientip"));
+				tomcat.setResponse((String) map.get("response"));
+				tomcat.setMessage((String) map.get("message"));
+				tomcat.setType((String) map.get("verb"));
+				tomcat.setTimestamp((String) map.get("timestamp"));
+				tomcat.setRowId(i);
+				list.add(tomcat);
+				i++;
+			}
+		} catch (IndexNotFoundException e) {
+			System.err.println("此索引不存在!");
 		}
 		return list;
 	}
@@ -206,31 +233,39 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 	 * 错误日志统计
 	 */
 	@Override
-	public List<TomcatModel> errorTomcatRequest(Page page) {
+	public List<TomcatModel> errorTomcatRequest(Page page, String index) {
 		TransportClient client = getClient();
+		if (index.isEmpty() == true) {
+			return null;
+		}
 		List<TomcatModel> list = new ArrayList<TomcatModel>();
-		SearchResponse response = client.prepareSearch(getIndexName()).setTypes(getIndexType()).setFrom(page.getStart())
-				.setSize(page.getLength()).setQuery(QueryBuilders.regexpQuery("response", "[3-5][0-9][0-9]")).execute().actionGet();
-		SearchHits myhits = response.getHits();
-		page.setRecordsFiltered((int) myhits.getTotalHits());
-		page.setRecordsTotal((int) myhits.getTotalHits());
+		try {
+			SearchResponse response = client.prepareSearch(index).setTypes(getIndexType()).setFrom(page.getStart())
+					.setSize(page.getLength()).setQuery(QueryBuilders.regexpQuery("response", "[3-5][0-9][0-9]"))
+					.execute().actionGet();
+			SearchHits myhits = response.getHits();
+			page.setRecordsFiltered((int) myhits.getTotalHits());
+			page.setRecordsTotal((int) myhits.getTotalHits());
 
-		int i = 1;
-		for (SearchHit hit : myhits.getHits()) {
-			TomcatModel tomcat = new TomcatModel();
-			Map<String, Object> map = hit.getSource();
-			tomcat.setClientip((String) map.get("clientip"));
-			tomcat.setResponse((String) map.get("response"));
-			tomcat.setMessage((String) map.get("message"));
-			tomcat.setType((String) map.get("verb"));
-			tomcat.setTimestamp((String) map.get("timestamp"));
-			tomcat.setRowId(i);
-			list.add(tomcat);
-			i++;
+			int i = 1;
+			for (SearchHit hit : myhits.getHits()) {
+				TomcatModel tomcat = new TomcatModel();
+				Map<String, Object> map = hit.getSource();
+				tomcat.setClientip((String) map.get("clientip"));
+				tomcat.setResponse((String) map.get("response"));
+				tomcat.setMessage((String) map.get("message"));
+				tomcat.setType((String) map.get("verb"));
+				tomcat.setTimestamp((String) map.get("timestamp"));
+				tomcat.setRowId(i);
+				list.add(tomcat);
+				i++;
+			}
+		} catch (IndexNotFoundException e) {
+			System.err.println("此索引不存在!");
 		}
 		return list;
 	}
-	
+
 	@Override
 	public TransportClient getClient() {
 		return ESUtil.getClient();
@@ -238,11 +273,11 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 
 	@Override
 	public String getIndexName() {
-		return INDEX_NAME;
+		return TomcatServiceImpl.INDEX_NAME;
 	}
 
 	@Override
 	public String getIndexType() {
-		return INDEX_TYPE;
+		return TomcatServiceImpl.INDEX_TYPE;
 	}
 }

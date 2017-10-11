@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.osp.log.service.SearchService;
-
+/**
+ * 
+ * @author zhangmingcheng
+ */
 @Controller
 public class EsSearchController {
 

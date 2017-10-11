@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <script src=js/echarts.min.js></script>
+  <script src=js/jquery-latest.js></script>
+  
+  <title>统计http请求方式</title>
+ </head>
+ <script type="text/javascript">
+ 	var loadData = function() {
+ 		var myChart = echarts.init(document.getElementById('chart'));
+ 		
+ 		  $.get('tomcatRequest', {index:"logstash-lcfwzx"},function (result) {
+ 			 console.log(result)
+ 			 var obj = JSON.parse(result);
+ 			 console.log(obj['key'])
+ 		     myChart.setOption({
+ 		         title: {
+ 		             text: 'Tomcat 请求'
+ 		         },
+ 		         tooltip: {},
+ 		         legend: {
+ 		             data:['请求']
+ 		         },
+ 		         xAxis: {
+ 		             data: obj['key']
+ 		         },
+ 		         yAxis: {},
+ 		         series: [{
+ 		             name: '请求',
+ 		             type: 'bar',
+ 		             data: obj['value']
+ 		         }]
+ 		     });
+ 		 }); 
+ 	}
+ </script>
+ <body onload="loadData()">
+  <div id="chart" style="height: 400px; width: 400px; margin: 0"></div>
+ </body>
+</html>

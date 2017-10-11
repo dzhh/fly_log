@@ -7,15 +7,15 @@ import com.osp.log.model.TomcatModel;
 
 public interface TomcatService {
 
-	TomcatModel tomcatTimeSearch(int day);
+	TomcatModel tomcatTimeSearch(int day,String index);
 
-	TomcatModel tomcatRequest();
+	TomcatModel tomcatRequest(String index);
 
-	TomcatModel tomcatRequestType(String type);
+	TomcatModel tomcatRequestType(String requestType,String index);
 
-	List<TomcatModel> tomcatRequestAll(Page page);
+	List<TomcatModel> tomcatRequestAll(Page page,String index);
 	
-	List<TomcatModel> errorTomcatRequest(Page page);
+	List<TomcatModel> errorTomcatRequest(Page page,String index);
 	
-	List<TomcatModel> clientRequestCount();
+	List<TomcatModel> clientRequestCount(String index);
 }

@@ -161,7 +161,10 @@
 	    $('#example').dataTable( {
 	        "processing": true,
 	        "serverSide": true,
-	        "ajax": "tomcatRequestAll",
+	        "ajax": {
+	        	url:"tomcatRequestAll",
+	        	data:{"index":"logstash-lcfwzx"}
+	        },
 			"columns": [
 				{ "data": "rowId" },
 				{ "data": "type" },
