@@ -7,14 +7,15 @@
   <meta name="Description" content="">
   <script src=js/echarts.min.js></script>
   <script src=js/jquery-latest.js></script>
+  <script src=js/urlvalue.js></script>
   
   <title>近10天日志统计</title>
  </head>
  <script type="text/javascript">
+    var myurl=GetQueryString("index");
  	var loadData = function() {
  		var myChart = echarts.init(document.getElementById('chart'));
- 		
- 		 $.get('tomcatRequestDate',{index:"logstash-lcfwzx"}, function (result) {
+ 		 $.get('tomcatRequestDate',{index:myurl}, function (result) {
  			 console.log(result)
  			 var obj = JSON.parse(result);
  			 console.log(obj['key'])

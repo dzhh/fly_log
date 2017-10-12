@@ -45,6 +45,7 @@ public class EsTomcatController {
 	@RequestMapping(value = "/tomcatRequestAll")
 	public String tomcatRequestAll(HttpServletRequest request,
 			@RequestParam(value = "index", defaultValue = "") String index) {
+		System.out.println("tomcatRequestAll index=" + index);
 		Page page = new Page();
 		page.setDraw(Integer.parseInt(request.getParameter("draw").toString()));
 		page.setStart(Integer.parseInt(request.getParameter("start").toString()));
@@ -71,6 +72,7 @@ public class EsTomcatController {
 	@RequestMapping(value = "/errorTomcatRequest")
 	public String errorTomcatRequest(HttpServletRequest request,
 			@RequestParam(value = "index", defaultValue = "") String index) {
+		System.out.println("errorTomcatRequest index=" + index);
 		Page page = new Page();
 		page.setDraw(Integer.parseInt(request.getParameter("draw").toString()));
 		page.setStart(Integer.parseInt(request.getParameter("start").toString()));
@@ -97,6 +99,7 @@ public class EsTomcatController {
 	public String tomcatTimeSearch(HttpServletRequest request,
 			@RequestParam(value = "day", defaultValue = "10") Integer day,
 			@RequestParam(value = "index", defaultValue = "") String index) {
+		System.out.println("tomcatRequestDate index=" + index);
 		TomcatModel tomcat = tomcatService.tomcatTimeSearch(day, index);
 		return JsonUtil.beanToJson(tomcat);
 	}
@@ -111,6 +114,7 @@ public class EsTomcatController {
 	@RequestMapping(value = "/tomcatRequest")
 	public String tomcatRequest(HttpServletRequest request,
 			@RequestParam(value = "index", defaultValue = "") String index) {
+		System.out.println("tomcatRequest index=" + index);
 		TomcatModel tomcat = tomcatService.tomcatRequest(index);
 		return JsonUtil.beanToJson(tomcat);
 	}
@@ -125,6 +129,7 @@ public class EsTomcatController {
 	@RequestMapping(value = "/clientRequestCount")
 	public String clientRequestCount(HttpServletRequest request,
 			@RequestParam(value = "index", defaultValue = "") String index) {
+		System.out.println("clientRequestCount index=" + index);
 		Page page = new Page();
 		page.setDraw(Integer.parseInt(request.getParameter("draw").toString()));
 		page.setStart(Integer.parseInt(request.getParameter("start").toString()));
@@ -144,6 +149,7 @@ public class EsTomcatController {
 	@RequestMapping(value = "/tomcatRequestType")
 	public String tomcatRequestType(HttpServletRequest request,
 			@RequestParam(value = "index", defaultValue = "") String index) {
+		System.out.println("tomcatRequestType index=" + index);
 		String requestType = (String) request.getParameter("requestType");
 		TomcatModel tomcat = tomcatService.tomcatRequestType(requestType, index);
 		return JsonUtil.beanToJson(tomcat);

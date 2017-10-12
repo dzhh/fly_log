@@ -7,14 +7,16 @@
   <meta name="Description" content="">
   <script src=js/echarts.min.js></script>
   <script src=js/jquery-latest.js></script>
+  <script src=js/urlvalue.js></script>
   
   <title>统计http请求方式</title>
  </head>
  <script type="text/javascript">
+    var myurl=GetQueryString("index");
  	var loadData = function() {
  		var myChart = echarts.init(document.getElementById('chart'));
  		
- 		  $.get('tomcatRequest', {index:"logstash-lcfwzx"},function (result) {
+ 		  $.get('tomcatRequest', {index:myurl},function (result) {
  			 console.log(result)
  			 var obj = JSON.parse(result);
  			 console.log(obj['key'])

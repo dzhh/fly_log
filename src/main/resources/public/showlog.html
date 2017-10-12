@@ -14,12 +14,12 @@
     <table id="example" class="display table-striped table-bordered table-hover table-condensed" cellspacing="0" width="100%">
       <thead>
         <tr>
-         	<th>rowId</th>
-	   		<th>type</th>
-	   		<th>clientip</th>
-	   		<th>response code</th>
-	        <th>message</th>
-	        <th>timestamp</th>
+         	<th>序号</th>
+	   		<th>请求方式</th>
+	   		<th>客户端地址</th>
+	   		<th>状态码</th>
+	        <th>消息</th>
+	        <th>访问时间</th>
         </tr>
       </thead>
     </table>
@@ -32,15 +32,17 @@
   <script src="js/bootstrap.min.js"></script>
   <script src="js/jquery.dataTables.min.js"></script>
   <script src="js/dataTables.bootstrap.min.js"></script>
+  <script src=js/urlvalue.js></script>
   
   <script type="text/javascript">
+  var myurl=GetQueryString("index");
   $(document).ready(function() {
 	    $('#example').dataTable( {
 	        "processing": true,
 	        "serverSide": true,
 	        "ajax": {
 	        	url:"tomcatRequestAll",
-	        	data:{"index":"logstash-lcfwzx"}
+	        	data:{"index":myurl}
 	        },
 			"columns": [
 				{ "data": "rowId" },
@@ -49,7 +51,31 @@
 				{ "data": "response" },
 				{ "data": "message" },
 				{ "data": "timestamp" },
-			]
+			],
+			language: {
+		        "sProcessing": "处理中...",
+		        "sLengthMenu": "显示 _MENU_ 项结果",
+		        "sZeroRecords": "没有匹配结果",
+		        "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+		        "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+		        "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+		        "sInfoPostFix": "",
+		        "sSearch": "搜索:",
+		        "sUrl": "",
+		        "sEmptyTable": "表中数据为空",
+		        "sLoadingRecords": "载入中...",
+		        "sInfoThousands": ",",
+		        "oPaginate": {
+		            "sFirst": "首页",
+		            "sPrevious": "上页",
+		            "sNext": "下页",
+		            "sLast": "末页"
+		        },
+		        "oAria": {
+		            "sSortAscending": ": 以升序排列此列",
+		            "sSortDescending": ": 以降序排列此列"
+		        }
+		    }  
 	    } );
 	} );
   </script>
