@@ -97,7 +97,7 @@ public class EsTomcatController {
 	@ResponseBody
 	@RequestMapping(value = "/tomcatRequestDate")
 	public String tomcatTimeSearch(HttpServletRequest request,
-			@RequestParam(value = "day", defaultValue = "10") Integer day,
+			@RequestParam(value = "day", defaultValue = "20") Integer day,
 			@RequestParam(value = "index", defaultValue = "") String index) {
 		System.out.println("tomcatRequestDate index=" + index);
 		TomcatModel tomcat = tomcatService.tomcatTimeSearch(day, index);

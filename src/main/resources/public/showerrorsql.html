@@ -3,7 +3,7 @@
  
 <head>
   <meta charset="UTF-8">
-  <title>http错误请求</title>
+  <title>展示错误sql日志</title>
   <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
   <link href="css/dataTables.bootstrap.min.css" rel="stylesheet" media="screen">
   <link href="css/jquery.dataTables.min.css" rel="stylesheet" media="screen">
@@ -14,11 +14,10 @@
     <table style="white-space: nowrap;" id="example" class="display table-striped table-bordered table-hover table-condensed" cellspacing="0">
       <thead>
         <tr>
-         	<th>序号</th>
-	   		<th>请求方式</th>
-	   		<th>客户端地址</th>
-	   		<th>状态码</th>
+         	<th>序号</th>	   		
 	        <th>消息</th>
+	        <th>服务器</th>
+	        <th>类型</th>
 	        <th>访问时间</th>
         </tr>
       </thead>
@@ -35,30 +34,22 @@
   <script src=js/urlvalue.js></script>
   
   <script type="text/javascript">
-  var myurl=GetQueryString("index");
+  var index=GetQueryString("index");
+  var type=GetQueryString("type");
   $(document).ready(function() {
 	    $('#example').dataTable( {
-	    	 "aoColumnDefs": [
-	    	                  { "sWidth": "10%", "aTargets": [ 0 ] },
-	    	                  { "sWidth": "12%", "aTargets": [ 1 ] },
-	    	                  { "sWidth": "10%", "aTargets": [ 2 ] },
-	    	                  { "sWidth": "10%", "aTargets": [ 3 ] },
-	    	                  { "sWidth": "48%", "aTargets": [ 4 ] },
-	    	                  { "sWidth": "10%", "aTargets": [ 5 ] }
-	    	                ],
 	        "processing": true,
 	        "serverSide": true,
 	        "ajax": {
-	        	url:"errorTomcatRequest",
-	        	data:{"index":myurl}
+	        	url:"getSqlErrLogs",
+	        	data:{"index":index,"type":type}
 	        },
 			"columns": [
 				{ "data": "rowId" },
-				{ "data": "type" },
-				{ "data": "clientip" },
-				{ "data": "response" },
 				{ "data": "message" },
-				{ "data": "timestamp" },
+				{ "data": "host" },
+				{ "data": "type" },
+				{ "data": "mysql_time" },
 			],
 			language: {
 		        "sProcessing": "处理中...",
