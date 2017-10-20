@@ -36,6 +36,8 @@
   
   <script type="text/javascript">
   var myurl=GetQueryString("index");
+  var startdate = GetQueryString("startdate");
+  var enddate = GetQueryString("enddate");
   $(document).ready(function() {
 	    $('#example').dataTable( {
 	    	"searching" : false,
@@ -45,7 +47,7 @@
 	        "serverSide": true,
 	        "ajax": {
 	        	url:"errorTomcatRequest",
-	        	data:{"index":myurl}
+	            data:{"index":myurl,"startdate":startdate,"enddate":enddate}
 	        },
 			"columns": [
 				{ "data": "rowId" },

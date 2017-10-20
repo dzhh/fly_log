@@ -7,7 +7,7 @@ import com.osp.log.model.TomcatModel;
 
 public interface TomcatService {
 
-	TomcatModel tomcatTimeSearch(int day,String index);
+	TomcatModel tomcatTimeSearch(int day,String index,String startDate,String endDate);
 
 	TomcatModel tomcatRequest(String index);
 
@@ -15,7 +15,7 @@ public interface TomcatService {
 
 	List<TomcatModel> tomcatRequestAll(Page page,String index,String startDate,String endDate);
 	
-	List<TomcatModel> errorTomcatRequest(Page page,String index);
+	List<TomcatModel> errorTomcatRequest(Page page,String index,String startDate, String endDate);
 	
 	List<TomcatModel> clientRequestCount(Page page,String index);
 }

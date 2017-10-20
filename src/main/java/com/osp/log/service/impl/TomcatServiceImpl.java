@@ -25,11 +25,11 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.joda.time.DateTimeZone;
 import org.springframework.stereotype.Service;
 
+import com.osp.log.model.DateInterval;
 import com.osp.log.model.Page;
 import com.osp.log.model.TomcatModel;
 import com.osp.log.service.BaseESService;
 import com.osp.log.service.TomcatService;
-import com.osp.log.util.DateUtil;
 import com.osp.log.util.ESUtil;
 import com.osp.log.util.RegexUtil;
 
@@ -44,10 +44,11 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 	}
 
 	@Override
-	public TomcatModel tomcatTimeSearch(int day, String index) {
+	public TomcatModel tomcatTimeSearch(int day, String index,String startDate, String endDate) {
 		if (index.isEmpty() == true) {
 			return null;
 		}
+		DateInterval dateInterval = RegexUtil.getDateInterval(new DateInterval(startDate,endDate),"yyyy-MM-dd");
 		// 查询索引
 		TransportClient client = this.getClient();
 		TomcatModel tomcat = new TomcatModel();
@@ -60,15 +61,15 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 			DateHistogramAggregationBuilder dateAgg = AggregationBuilders.dateHistogram("dateagg");
 			// 定义分组的日期字段
 			dateAgg.field("@timestamp");
-			ExtendedBounds extendedBounds = new ExtendedBounds(DateUtil.getPastDate(day), DateUtil.getDate());
+			ExtendedBounds extendedBounds = new ExtendedBounds(dateInterval.getStartDate(), dateInterval.getEndDate());
 			dateAgg.extendedBounds(extendedBounds);
 			dateAgg.dateHistogramInterval(DateHistogramInterval.DAY);
 			DateTimeZone timeZone = DateTimeZone.forID("Asia/Shanghai");
 			dateAgg.timeZone(timeZone);
 			dateAgg.format("yyyy-MM-dd");
 
-			RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp").from(DateUtil.getPastDate(day))
-					.to(DateUtil.getDate()).includeLower(true) // 包括下界
+			RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp").from(dateInterval.getStartDate())
+					.to(dateInterval.getEndDate()).includeLower(true) // 包括下界
 					.includeUpper(true); // 包括上界
 
 			// 组装请求
@@ -89,6 +90,8 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 			}
 		} catch (IndexNotFoundException e) {
 			System.err.println("此索引不存在!");
+		}catch (Exception e) {
+			e.printStackTrace();
 		}
 		return tomcat;
 	}
@@ -195,21 +198,13 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 		if (index.isEmpty() == true) {
 			return null;
 		}
-		// 默认返回当前索引存储的所有日志
-		if (startDate.isEmpty() == true || endDate.isEmpty() == true) {
-			startDate = "20000101";
-			endDate = DateUtil.getCurrentDate();
-		}
-		if (startDate.isEmpty() == false && endDate.isEmpty() == false
-				&& RegexUtil.judgeDateInterval(startDate, endDate) == false) {
-			endDate = startDate;
-		}
+		DateInterval dateInterval = RegexUtil.getDateInterval(new DateInterval(startDate,endDate),"yyyyMMdd");
 		TransportClient client = getClient();
 		List<TomcatModel> list = new ArrayList<TomcatModel>();
 		try {
 			SearchResponse response = client.prepareSearch(index).setTypes(getIndexType()).setFrom(page.getStart())
 					.setSize(page.getLength())
-					.setQuery(QueryBuilders.rangeQuery("@timestamp").format("yyyyMMdd").from(startDate).to(endDate))
+					.setQuery(QueryBuilders.rangeQuery("@timestamp").format("yyyyMMdd").from(dateInterval.getStartDate()).to(dateInterval.getEndDate()))
 					.addSort("@timestamp", SortOrder.ASC).execute().actionGet();
 			SearchHits myhits = response.getHits();
 			page.setRecordsFiltered((int) myhits.getTotalHits());
@@ -230,6 +225,8 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 			}
 		} catch (IndexNotFoundException e) {
 			System.err.println("此索引不存在!");
+		}catch (Exception e) {
+			e.printStackTrace();
 		}
 		return list;
 	}
@@ -238,15 +235,18 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 	 * 错误日志统计
 	 */
 	@Override
-	public List<TomcatModel> errorTomcatRequest(Page page, String index) {
+	public List<TomcatModel> errorTomcatRequest(Page page, String index,String startDate, String endDate) {
 		TransportClient client = getClient();
 		if (index.isEmpty() == true) {
 			return null;
 		}
+		DateInterval dateInterval = RegexUtil.getDateInterval(new DateInterval(startDate,endDate),"yyyyMMdd");
 		List<TomcatModel> list = new ArrayList<TomcatModel>();
 		try {
 			SearchResponse response = client.prepareSearch(index).setTypes(getIndexType()).setFrom(page.getStart())
 					.setSize(page.getLength()).setQuery(QueryBuilders.regexpQuery("response", "[3-5][0-9][0-9]"))
+					.setQuery(QueryBuilders.rangeQuery("@timestamp").format("yyyyMMdd").from(dateInterval.getStartDate()).to(dateInterval.getEndDate()))
+					.addSort("@timestamp", SortOrder.ASC)
 					.execute().actionGet();
 			SearchHits myhits = response.getHits();
 			page.setRecordsFiltered((int) myhits.getTotalHits());
@@ -267,6 +267,8 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 			}
 		} catch (IndexNotFoundException e) {
 			System.err.println("此索引不存在!");
+		}catch (Exception e) {
+			e.printStackTrace();
 		}
 		return list;
 	}
