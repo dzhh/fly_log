@@ -244,8 +244,9 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 		List<TomcatModel> list = new ArrayList<TomcatModel>();
 		try {
 			SearchResponse response = client.prepareSearch(index).setTypes(getIndexType()).setFrom(page.getStart())
-					.setSize(page.getLength()).setQuery(QueryBuilders.regexpQuery("response", "[3-5][0-9][0-9]"))
-					.setQuery(QueryBuilders.rangeQuery("@timestamp").format("yyyyMMdd").from(dateInterval.getStartDate()).to(dateInterval.getEndDate()))
+					.setSize(page.getLength())
+					.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.regexpQuery("response", "[4-6][0-9][0-9]"))
+					.must(QueryBuilders.rangeQuery("@timestamp").format("yyyyMMdd").from(dateInterval.getStartDate()).to(dateInterval.getEndDate())))
 					.addSort("@timestamp", SortOrder.ASC)
 					.execute().actionGet();
 			SearchHits myhits = response.getHits();
