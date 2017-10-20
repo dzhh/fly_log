@@ -10,13 +10,12 @@
 </head>
  
 <body>
-  <div class="row-fluid" style="margin-top:20px;">
+  <div class="row-fluid" style="margin-top:5px;">
     <table style="white-space: nowrap;" id="example" class="display table-striped table-bordered table-hover table-condensed" cellspacing="0">
       <thead>
         <tr>
          	<th>序号</th>	   		
-	        <th>消息</th>
-	        <th>服务器</th>
+	        <th>消息</th>       
 	        <th>类型</th>
 	        <th>访问时间</th>
         </tr>
@@ -40,14 +39,16 @@
 	    $('#example').dataTable( {
 	        "processing": true,
 	        "serverSide": true,
+	        "searching" : false,
+	        "bSort": false,
+	        "bLengthChange":false,
 	        "ajax": {
 	        	url:"getSqlLogs",
 	        	data:{"index":index,"type":type}
 	        },
 			"columns": [
 				{ "data": "rowId" },
-				{ "data": "message" },
-				{ "data": "host" },
+				{ "data": "message" },				
 				{ "data": "type" },
 				{ "data": "timestamp" },
 			],

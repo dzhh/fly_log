@@ -47,7 +47,6 @@ public class SqlServiceImpl implements SqlService {
 				Map<String, Object> map = hit.getSource();
 				sqlModel.setMessage((String) map.get("message"));
 				sqlModel.setType((String) map.get("type"));
-				sqlModel.setHost((String) map.get("host"));
 				//获取sql日志时间
 				sqlModel.setTimestamp((String) map.get("@timestamp"));
 				//获取sql错误日志时间

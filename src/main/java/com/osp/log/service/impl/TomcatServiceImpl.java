@@ -3,8 +3,6 @@ package com.osp.log.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -23,6 +21,7 @@ import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.joda.time.DateTimeZone;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +31,12 @@ import com.osp.log.service.BaseESService;
 import com.osp.log.service.TomcatService;
 import com.osp.log.util.DateUtil;
 import com.osp.log.util.ESUtil;
+import com.osp.log.util.RegexUtil;
 
 @Service
 public class TomcatServiceImpl extends BaseESService<TomcatModel> implements TomcatService {
 
-	public static final String INDEX_NAME = "logstash-apacheaccesslog*"; // 索引名称
+	public static final String INDEX_NAME = "logstash-apacheaccesslog*"; // 默认索引名称
 	public static final String INDEX_TYPE = "logs"; // 索引类型
 
 	public TomcatServiceImpl() {
@@ -133,7 +133,7 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 	 * 客户端访问次数统计-前10
 	 */
 	@Override
-	public List<TomcatModel> clientRequestCount(String index) {
+	public List<TomcatModel> clientRequestCount(Page page, String index) {
 		if (index.isEmpty() == true) {
 			return null;
 		}
@@ -145,10 +145,12 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 					.execute().actionGet();
 			Terms terms = response.getAggregations().get("cilentip_count");
 			List<Terms.Bucket> buckets = (List<Terms.Bucket>) terms.getBuckets();
+			page.setRecordsFiltered((int) buckets.size());
+			page.setRecordsTotal((int) buckets.size());
 			int i = 1;
 			for (Terms.Bucket bucket : buckets) {
 				TomcatModel tomcat = new TomcatModel();
-				if (isboolIp((String) bucket.getKey()) == true) {// 过滤掉不规则的ipv4
+				if (RegexUtil.isboolIp((String) bucket.getKey()) == true) {// 过滤掉不规则的ipv4
 					tomcat.setClientip((String) bucket.getKey());
 					tomcat.setCount((int) bucket.getDocCount());
 					tomcat.setRowId(i);
@@ -158,18 +160,10 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 			}
 		} catch (IndexNotFoundException e) {
 			System.err.println("此索引不存在!");
+		} catch (Exception e) {
+			System.err.println("java.lang.IllegalArgumentException:clientip字段不允许聚合!");
 		}
 		return list;
-	}
-
-	/**
-	 * * 判断是否为合法IP * @return the ip
-	 */
-	public static boolean isboolIp(String ipAddress) {
-		String ip = "([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}";
-		Pattern pattern = Pattern.compile(ip);
-		Matcher matcher = pattern.matcher(ipAddress);
-		return matcher.matches();
 	}
 
 	@Override
@@ -194,18 +188,29 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 	}
 
 	/**
-	 * tomcat请求展示
+	 * 网络请求展示
 	 */
 	@Override
-	public List<TomcatModel> tomcatRequestAll(Page page, String index) {
+	public List<TomcatModel> tomcatRequestAll(Page page, String index, String startDate, String endDate) {
 		if (index.isEmpty() == true) {
 			return null;
+		}
+		// 默认返回当前索引存储的所有日志
+		if (startDate.isEmpty() == true || endDate.isEmpty() == true) {
+			startDate = "20000101";
+			endDate = DateUtil.getCurrentDate();
+		}
+		if (startDate.isEmpty() == false && endDate.isEmpty() == false
+				&& RegexUtil.judgeDateInterval(startDate, endDate) == false) {
+			endDate = startDate;
 		}
 		TransportClient client = getClient();
 		List<TomcatModel> list = new ArrayList<TomcatModel>();
 		try {
 			SearchResponse response = client.prepareSearch(index).setTypes(getIndexType()).setFrom(page.getStart())
-					.setSize(page.getLength()).execute().actionGet();
+					.setSize(page.getLength())
+					.setQuery(QueryBuilders.rangeQuery("@timestamp").format("yyyyMMdd").from(startDate).to(endDate))
+					.addSort("@timestamp", SortOrder.ASC).execute().actionGet();
 			SearchHits myhits = response.getHits();
 			page.setRecordsFiltered((int) myhits.getTotalHits());
 			page.setRecordsTotal((int) myhits.getTotalHits());

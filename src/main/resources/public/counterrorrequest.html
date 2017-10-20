@@ -10,7 +10,7 @@
 </head>
  
 <body>
-  <div class="row-fluid" style="margin-top:20px;">
+  <div class="row-fluid" style="margin-top:5px;">
     <table style="white-space: nowrap;" id="example" class="display table-striped table-bordered table-hover table-condensed" cellspacing="0">
       <thead>
         <tr>
@@ -38,14 +38,9 @@
   var myurl=GetQueryString("index");
   $(document).ready(function() {
 	    $('#example').dataTable( {
-	    	 "aoColumnDefs": [
-	    	                  { "sWidth": "10%", "aTargets": [ 0 ] },
-	    	                  { "sWidth": "12%", "aTargets": [ 1 ] },
-	    	                  { "sWidth": "10%", "aTargets": [ 2 ] },
-	    	                  { "sWidth": "10%", "aTargets": [ 3 ] },
-	    	                  { "sWidth": "48%", "aTargets": [ 4 ] },
-	    	                  { "sWidth": "10%", "aTargets": [ 5 ] }
-	    	                ],
+	    	"searching" : false,
+		    "bSort": false,
+		    "bLengthChange":false,          
 	        "processing": true,
 	        "serverSide": true,
 	        "ajax": {

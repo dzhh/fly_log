@@ -169,9 +169,12 @@
 	    	                ],
 	        "processing": true,
 	        "serverSide": true,
+	        "searching" : false,
+	        "bSort": false,
+	        "bLengthChange":false,
 	        "ajax": {
 	        	url:"tomcatRequestAll",
-	        	data:{"index":"logstash-lcfwzx"}
+	        	data:{"index":"logstash-lcfwzx*"}
 	        },
 			"columns": [
 				{ "data": "rowId" },

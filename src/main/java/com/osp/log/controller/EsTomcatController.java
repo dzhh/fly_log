@@ -44,7 +44,9 @@ public class EsTomcatController {
 	@ResponseBody
 	@RequestMapping(value = "/tomcatRequestAll")
 	public String tomcatRequestAll(HttpServletRequest request,
-			@RequestParam(value = "index", defaultValue = "") String index) {
+			@RequestParam(value = "index", defaultValue = "") String index,
+			@RequestParam(value = "startdate", defaultValue = "") String startDate,
+			@RequestParam(value = "enddate", defaultValue = "") String endDate) {
 		System.out.println("tomcatRequestAll index=" + index);
 		Page page = new Page();
 		page.setDraw(Integer.parseInt(request.getParameter("draw").toString()));
@@ -52,7 +54,7 @@ public class EsTomcatController {
 		page.setLength(Integer.parseInt(request.getParameter("length").toString()));
 		System.out.println("start " + page.getStart() + " length" + page.getLength());
 
-		List<TomcatModel> list = tomcatService.tomcatRequestAll(page, index);
+		List<TomcatModel> list = tomcatService.tomcatRequestAll(page, index,startDate,endDate);
 		String json = JsonUtil.beanListToJson(list);
 		JSONObject jso = new JSONObject();
 		jso.put("draw", page.getDraw());
@@ -135,7 +137,7 @@ public class EsTomcatController {
 		page.setStart(Integer.parseInt(request.getParameter("start").toString()));
 		page.setLength(Integer.parseInt(request.getParameter("length").toString()));
 
-		List<TomcatModel> list = tomcatService.clientRequestCount(index);
+		List<TomcatModel> list = tomcatService.clientRequestCount(page,index);
 		String json = JsonUtil.beanListToJson(list);
 		JSONObject jso = new JSONObject();
 		jso.put("draw", page.getDraw());
@@ -143,7 +145,7 @@ public class EsTomcatController {
 		jso.put("recordsFiltered", page.getRecordsFiltered());
 		jso.put("data", json);
 		return jso.toString();
-	}
+	}	
 
 	@ResponseBody
 	@RequestMapping(value = "/tomcatRequestType")

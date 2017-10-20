@@ -13,9 +13,9 @@ public interface TomcatService {
 
 	TomcatModel tomcatRequestType(String requestType,String index);
 
-	List<TomcatModel> tomcatRequestAll(Page page,String index);
+	List<TomcatModel> tomcatRequestAll(Page page,String index,String startDate,String endDate);
 	
 	List<TomcatModel> errorTomcatRequest(Page page,String index);
 	
-	List<TomcatModel> clientRequestCount(String index);
+	List<TomcatModel> clientRequestCount(Page page,String index);
 }

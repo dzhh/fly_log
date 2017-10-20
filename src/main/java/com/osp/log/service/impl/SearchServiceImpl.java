@@ -33,8 +33,8 @@ import com.osp.log.model.SearchModel;
 import com.osp.log.model.SearchResultBean;
 import com.osp.log.model.TomcatModel;
 import com.osp.log.service.SearchService;
+import com.osp.log.util.DateUtil;
 import com.osp.log.util.ESUtil;
-import com.osp.log.util.TimeUtils;
 
 /**
  * 关键字搜索
@@ -116,7 +116,7 @@ public class SearchServiceImpl implements SearchService {
 		 */
 		String usetime = response.getTook().toString();
 		if (page == 1) {
-			String json = JsonUtil.beanToJson(new SearchModel(keyword, TimeUtils.getCurrentTime(), ip, city,
+			String json = JsonUtil.beanToJson(new SearchModel(keyword, DateUtil.getCurrentTime(), ip, city,
 					Integer.parseInt(usetime.substring(0, usetime.length() - 2)), System.currentTimeMillis()));
 			client.prepareIndex(ESConfig.SEARCHINDEX, ESConfig.SEARCHTYPE).setSource(json, XContentType.JSON).get();
 		}

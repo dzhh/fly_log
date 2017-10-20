@@ -51,6 +51,19 @@ public class DateUtil {
 		String result = format.format(today);
 		return result;
 	}
+	
+	/**
+	 * 获取当天 格式yyyyMMdd
+	 * @return
+	 */
+	public static String getCurrentDate() {
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR));
+		Date today = calendar.getTime();
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+		String result = format.format(today);
+		return result;
+	}
 
 	/**
 	 * 获取过去第几天的日期
@@ -80,6 +93,16 @@ public class DateUtil {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		String result = format.format(today);
 		return result;
+	}
+	
+	/**
+	 * 获取当前时间:格式yyyy-MM-dd HH:mm:ss
+	 * @return
+	 */
+	public static String getCurrentTime() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		java.util.Date date = new java.util.Date();
+		return sdf.format(date);
 	}
 	
 	public static void main(String[] args) {

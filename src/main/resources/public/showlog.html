@@ -10,7 +10,7 @@
 </head>
  
 <body>
-  <div class="row-fluid" style="margin-top:20px;">
+  <div class="row-fluid" style="margin-top:5px;">
     <table style="white-space: nowrap;" id="example" class="display table-striped table-bordered table-hover table-condensed" cellspacing="0">
       <thead>
         <tr>
@@ -40,6 +40,9 @@
 	    $('#example').dataTable( {
 	        "processing": true,
 	        "serverSide": true,
+	        "searching" : false,
+	        "bSort": false,
+	        "bLengthChange":false,
 	        "ajax": {
 	        	url:"tomcatRequestAll",
 	        	data:{"index":myurl}
