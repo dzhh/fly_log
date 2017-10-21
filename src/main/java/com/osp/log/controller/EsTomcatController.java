@@ -55,12 +55,15 @@ public class EsTomcatController {
 		page.setLength(Integer.parseInt(request.getParameter("length").toString()));
 
 		List<TomcatModel> list = tomcatService.tomcatRequestAll(page, index,startDate,endDate);
-		String json = JsonUtil.beanListToJson(list);
 		JSONObject jso = new JSONObject();
+		if(list!=null){
+			jso.put("data", JsonUtil.beanListToJson(list));
+		}else{
+			jso.put("data", "");
+		}
 		jso.put("draw", page.getDraw());
 		jso.put("recordsTotal", page.getRecordsTotal());
 		jso.put("recordsFiltered", page.getRecordsFiltered());
-		jso.put("data", json);
 		return jso.toString();
 	}
 
@@ -83,17 +86,20 @@ public class EsTomcatController {
 		page.setLength(Integer.parseInt(request.getParameter("length").toString()));
 
 		List<TomcatModel> list = tomcatService.errorTomcatRequest(page, index,startDate,endDate);
-		String json = JsonUtil.beanListToJson(list);
 		JSONObject jso = new JSONObject();
+		if(list!=null){
+			jso.put("data", JsonUtil.beanListToJson(list));
+		}else{
+			jso.put("data", "");
+		}
 		jso.put("draw", page.getDraw());
 		jso.put("recordsTotal", page.getRecordsTotal());
 		jso.put("recordsFiltered", page.getRecordsFiltered());
-		jso.put("data", json);
 		return jso.toString();
 	}
 
 	/**
-	 * 获取最近n天tomcat请求数 n默认为20
+	 * 获取最近n天tomcat请求数 n默认为12
 	 * 
 	 * @param request
 	 * @return
@@ -101,7 +107,7 @@ public class EsTomcatController {
 	@ResponseBody
 	@RequestMapping(value = "/tomcatRequestDate")
 	public String tomcatTimeSearch(HttpServletRequest request,
-			@RequestParam(value = "day", defaultValue = "20") Integer day,
+			@RequestParam(value = "day", defaultValue = "12") Integer day,
 			@RequestParam(value = "index", defaultValue = "") String index,
 			@RequestParam(value = "startdate", defaultValue = "") String startDate,
 			@RequestParam(value = "enddate", defaultValue = "") String endDate) {
@@ -151,12 +157,15 @@ public class EsTomcatController {
 		page.setLength(Integer.parseInt(request.getParameter("length").toString()));
 
 		List<TomcatModel> list = tomcatService.clientRequestCount(page,index);
-		String json = JsonUtil.beanListToJson(list);
 		JSONObject jso = new JSONObject();
+		if(list!=null){
+			jso.put("data", JsonUtil.beanListToJson(list));
+		}else{
+			jso.put("data", "");
+		}
 		jso.put("draw", page.getDraw());
 		jso.put("recordsTotal", page.getRecordsTotal());
 		jso.put("recordsFiltered", page.getRecordsFiltered());
-		jso.put("data", json);
 		return jso.toString();
 	}	
 

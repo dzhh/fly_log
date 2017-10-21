@@ -30,7 +30,8 @@
  		             data:['请求']
  		         },
  		         xAxis: {
- 		             data: obj['key']
+ 		             data: obj['key'],
+ 		             axisLabel:{interval: 0}
  		         },
  		         yAxis: {},
  		         series: [{
@@ -43,6 +44,6 @@
  	}
  </script>
  <body onload="loadData()">
-  <div id="chart" style="height: 450px; width: 650px; margin: 0"></div>
+  <div id="chart" style="height: 500px; width: 750px; margin: 0"></div>
  </body>
 </html>

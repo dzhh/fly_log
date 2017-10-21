@@ -104,11 +104,4 @@ public class DateUtil {
 		java.util.Date date = new java.util.Date();
 		return sdf.format(date);
 	}
-	
-	public static void main(String[] args) {
-		List<String> data = DateUtil.getFutureDaysList(5);
-		for(String dString : data){
-			System.out.println(dString);
-		}
-	}
 }
