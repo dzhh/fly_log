@@ -35,6 +35,8 @@
   <script type="text/javascript">
   var index=GetQueryString("index");
   var type=GetQueryString("type");
+  var startdate = GetQueryString("startdate");
+  var enddate = GetQueryString("enddate");
   $(document).ready(function() {
 	    $('#example').dataTable( {
 	        "processing": true,
@@ -44,7 +46,7 @@
 	        "bLengthChange":false,
 	        "ajax": {
 	        	url:"getSqlLogs",
-	        	data:{"index":index,"type":type}
+	            data:{"index":index,"type":type,"startdate":startdate,"enddate":enddate}
 	        },
 			"columns": [
 				{ "data": "rowId" },

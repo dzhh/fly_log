@@ -6,21 +6,19 @@ import java.util.List;
 public class SqlModel {
 
 	private String type;
-	
+
 	private String message;
-	
+
 	private String host;
-	
+
 	private String timestamp;
-	
-	private String mysql_time;
-	
+
 	private String path;
-	
+
 	private int count;
-	
+
 	private int rowId;
-	
+
 	public int getRowId() {
 		return rowId;
 	}
@@ -30,7 +28,7 @@ public class SqlModel {
 	}
 
 	private List key = new ArrayList<>();
-	
+
 	private List value = new ArrayList<>();
 
 	public String getTimestamp() {
@@ -41,7 +39,6 @@ public class SqlModel {
 		this.timestamp = timestamp;
 	}
 
-	
 	public String getMessage() {
 		return message;
 	}
@@ -73,10 +70,11 @@ public class SqlModel {
 	public void setValue(List value) {
 		this.value = value;
 	}
+
 	public void addKey(Object k) {
 		key.add(k);
 	}
-	
+
 	public void addValue(Object v) {
 		value.add(v);
 	}
@@ -104,13 +102,4 @@ public class SqlModel {
 	public void setHost(String host) {
 		this.host = host;
 	}
-
-	public String getMysql_time() {
-		return mysql_time;
-	}
-
-	public void setMysql_time(String mysql_time) {
-		this.mysql_time = mysql_time;
-	}
-
 }

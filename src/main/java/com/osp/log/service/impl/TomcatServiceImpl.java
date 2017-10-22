@@ -43,8 +43,7 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 
 	@Override
 	public TomcatModel tomcatTimeSearch(int day, String index, String startDate, String endDate) {
-		if (index.isEmpty() == true || ESUtil.isExistsIndex(index) == false
-				|| ESUtil.isExistsType(index, getIndexType()) == false) {
+		if (ESUtil.isExistsIndex(index) == false || ESUtil.isExistsType(index, getIndexType()) == false) {
 			return null;
 		}
 		DateInterval dateInterval = RegexUtil.getDateInterval(new DateInterval(startDate, endDate), "yyyy-MM-dd");
@@ -87,19 +86,24 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 		return tomcat;
 	}
 
+	/**
+	 * 请求方式统计
+	 */
 	@Override
-	public TomcatModel tomcatRequest(String index) {
-		if (index.isEmpty() == true || ESUtil.isExistsIndex(index) == false
-				|| ESUtil.isExistsType(index, getIndexType()) == false) {
+	public TomcatModel tomcatRequest(String index, String startDate, String endDate) {
+		if (ESUtil.isExistsIndex(index) == false || ESUtil.isExistsType(index, getIndexType()) == false) {
 			return null;
 		}
-		// 查询索引
+		DateInterval dateInterval = RegexUtil.getDateInterval(new DateInterval(startDate, endDate), "yyyyMMdd");
 		TransportClient client = getClient();
 		TomcatModel tomcat = new TomcatModel();
 		try {
 			MatchQueryBuilder queryBuilderGet = QueryBuilders.matchQuery("verb", "GET");
 			// GET POST ..
-			SearchResponse responseGet = client.prepareSearch(index).setTypes(getIndexType()).setQuery(queryBuilderGet)
+			SearchResponse responseGet = client.prepareSearch(index).setTypes(getIndexType())
+					.setQuery(QueryBuilders.boolQuery().must(queryBuilderGet)
+							.must(QueryBuilders.rangeQuery("timestamp").format("yyyyMMdd")
+									.from(dateInterval.getStartDate()).to(dateInterval.getEndDate())))
 					.execute().actionGet();
 			SearchHits myhitsGet = responseGet.getHits();
 			tomcat.addKey("GET");
@@ -107,13 +111,19 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 
 			MatchQueryBuilder queryBuilderPost = QueryBuilders.matchQuery("verb", "POST");
 			SearchResponse responsePost = client.prepareSearch(index).setTypes(getIndexType())
-					.setQuery(queryBuilderPost).execute().actionGet();
+					.setQuery(QueryBuilders.boolQuery().must(queryBuilderPost)
+							.must(QueryBuilders.rangeQuery("timestamp").format("yyyyMMdd")
+									.from(dateInterval.getStartDate()).to(dateInterval.getEndDate())))
+					.execute().actionGet();
 			SearchHits myhitsPost = responsePost.getHits();
 			tomcat.addKey("POST");
 			tomcat.addValue(myhitsPost.getTotalHits());
 
 			MatchQueryBuilder queryBuilderPut = QueryBuilders.matchQuery("verb", "PUT");
-			SearchResponse responsePut = client.prepareSearch(index).setTypes(getIndexType()).setQuery(queryBuilderPut)
+			SearchResponse responsePut = client.prepareSearch(index).setTypes(getIndexType())
+					.setQuery(QueryBuilders.boolQuery().must(queryBuilderPut)
+							.must(QueryBuilders.rangeQuery("timestamp").format("yyyyMMdd")
+									.from(dateInterval.getStartDate()).to(dateInterval.getEndDate())))
 					.execute().actionGet();
 			SearchHits myhitsPut = responsePut.getHits();
 			tomcat.addKey("PUT");
@@ -129,8 +139,7 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 	 */
 	@Override
 	public List<TomcatModel> clientRequestCount(Page page, String index) {
-		if (index.isEmpty() == true || ESUtil.isExistsIndex(index) == false
-				|| ESUtil.isExistsType(index, getIndexType()) == false) {
+		if (ESUtil.isExistsIndex(index) == false || ESUtil.isExistsType(index, getIndexType()) == false) {
 			return null;
 		}
 		List<TomcatModel> list = new ArrayList<TomcatModel>();
@@ -161,35 +170,12 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 		return list;
 	}
 
-	@Override
-	public TomcatModel tomcatRequestType(String requestType, String index) {
-		if (index.isEmpty() == true || ESUtil.isExistsIndex(index) == false
-				|| ESUtil.isExistsType(index, getIndexType()) == false) {
-			return null;
-		}
-		TransportClient client = getClient();
-		TomcatModel tomcat = new TomcatModel();
-		try {
-			MatchQueryBuilder queryBuilder = QueryBuilders.matchQuery("verb", requestType);
-			// GET POST ..
-			SearchResponse response = client.prepareSearch(index).setTypes(getIndexType()).setQuery(queryBuilder)
-					.execute().actionGet();
-			SearchHits myhits = response.getHits();
-			tomcat.addKey(requestType);
-			tomcat.addValue(myhits.getTotalHits());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return tomcat;
-	}
-
 	/**
 	 * 网络请求展示
 	 */
 	@Override
 	public List<TomcatModel> tomcatRequestAll(Page page, String index, String startDate, String endDate) {
-		if (index.isEmpty() == true || ESUtil.isExistsIndex(index) == false
-				|| ESUtil.isExistsType(index, getIndexType()) == false) {
+		if (ESUtil.isExistsIndex(index) == false || ESUtil.isExistsType(index, getIndexType()) == false) {
 			return null;
 		}
 		DateInterval dateInterval = RegexUtil.getDateInterval(new DateInterval(startDate, endDate), "yyyyMMdd");
@@ -228,8 +214,7 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 	 */
 	@Override
 	public List<TomcatModel> errorTomcatRequest(Page page, String index, String startDate, String endDate) {
-		if (index.isEmpty() == true || ESUtil.isExistsIndex(index) == false
-				|| ESUtil.isExistsType(index, getIndexType()) == false) {
+		if (ESUtil.isExistsIndex(index) == false || ESUtil.isExistsType(index, getIndexType()) == false) {
 			return null;
 		}
 		TransportClient client = getClient();
@@ -263,6 +248,27 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 			e.printStackTrace();
 		}
 		return list;
+	}
+
+	@Override
+	public TomcatModel tomcatRequestType(String requestType, String index) {
+		if (ESUtil.isExistsIndex(index) == false || ESUtil.isExistsType(index, getIndexType()) == false) {
+			return null;
+		}
+		TransportClient client = getClient();
+		TomcatModel tomcat = new TomcatModel();
+		try {
+			MatchQueryBuilder queryBuilder = QueryBuilders.matchQuery("verb", requestType);
+			// GET POST ..
+			SearchResponse response = client.prepareSearch(index).setTypes(getIndexType()).setQuery(queryBuilder)
+					.execute().actionGet();
+			SearchHits myhits = response.getHits();
+			tomcat.addKey(requestType);
+			tomcat.addValue(myhits.getTotalHits());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return tomcat;
 	}
 
 	@Override

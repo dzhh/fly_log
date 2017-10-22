@@ -13,10 +13,11 @@
  </head>
  <script type="text/javascript">
     var myurl=GetQueryString("index");
+    var startdate = GetQueryString("startdate");
+    var enddate = GetQueryString("enddate");
  	var loadData = function() {
  		var myChart = echarts.init(document.getElementById('chart'));
- 		
- 		  $.get('tomcatRequest', {index:myurl},function (result) {
+ 		  $.get('tomcatRequest', {"index":myurl,"startdate":startdate,"enddate":enddate},function (result) {
  			 console.log(result)
  			 var obj = JSON.parse(result);
  			 console.log(obj['key'])
@@ -42,6 +43,6 @@
  	}
  </script>
  <body onload="loadData()">
-  <div id="chart" style="height: 400px; width: 400px; margin: 0"></div>
+  <div id="chart" style="height: 500px; width: 650px; margin: 0"></div>
  </body>
 </html>

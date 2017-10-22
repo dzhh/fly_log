@@ -35,6 +35,8 @@
   <script type="text/javascript">
   var index=GetQueryString("index");
   var type=GetQueryString("type");
+  var startdate = GetQueryString("startdate");
+  var enddate = GetQueryString("enddate");
   $(document).ready(function() {
 	    $('#example').dataTable( {
 	        "searching" : false,
@@ -44,13 +46,13 @@
 	        "serverSide": true,
 	        "ajax": {
 	        	url:"getSqlErrLogs",
-	        	data:{"index":index,"type":type}
+	        	data:{"index":index,"type":type,"startdate":startdate,"enddate":enddate}
 	        },
 			"columns": [
 				{ "data": "rowId" },
 				{ "data": "message" },
 				{ "data": "type" },
-				{ "data": "mysql_time" },
+				{ "data": "timestamp" },
 			],
 			language: {
 		        "sProcessing": "处理中...",

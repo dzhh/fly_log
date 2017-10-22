@@ -10,5 +10,5 @@ import com.osp.log.model.SqlModel;
  * @author zhangmingcheng
  */
 public interface SqlService {
-	List<SqlModel> getSqlLogs(Page page,String index,String type);
+	List<SqlModel> getSqlLogs(Page page,String index,String type,String startDate,String endDate);
 }

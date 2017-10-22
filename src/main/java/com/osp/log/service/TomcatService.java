@@ -9,7 +9,7 @@ public interface TomcatService {
 
 	TomcatModel tomcatTimeSearch(int day,String index,String startDate,String endDate);
 
-	TomcatModel tomcatRequest(String index);
+	TomcatModel tomcatRequest(String index,String startDate,String endDate);
 
 	TomcatModel tomcatRequestType(String requestType,String index);
 

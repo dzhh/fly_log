@@ -111,7 +111,7 @@ public class EsTomcatController {
 			@RequestParam(value = "index", defaultValue = "") String index,
 			@RequestParam(value = "startdate", defaultValue = "") String startDate,
 			@RequestParam(value = "enddate", defaultValue = "") String endDate) {
-		//默认为20天
+		//默认为12天
 		if(startDate.isEmpty()==true){
 			startDate = DateUtil.getPastDate(day);
 			endDate =  DateUtil.getDate();
@@ -134,9 +134,11 @@ public class EsTomcatController {
 	@ResponseBody
 	@RequestMapping(value = "/tomcatRequest")
 	public String tomcatRequest(HttpServletRequest request,
-			@RequestParam(value = "index", defaultValue = "") String index) {
-		System.out.println("tomcatRequest index=" + index);
-		TomcatModel tomcat = tomcatService.tomcatRequest(index);
+			@RequestParam(value = "index", defaultValue = "") String index,
+			@RequestParam(value = "startdate", defaultValue = "") String startDate,
+			@RequestParam(value = "enddate", defaultValue = "") String endDate) {
+		System.out.println("tomcatRequest index=" + index+" startDate="+startDate+" endDate="+endDate);
+		TomcatModel tomcat = tomcatService.tomcatRequest(index,startDate,endDate);
 		return JsonUtil.beanToJson(tomcat);
 	}
 
