@@ -14,6 +14,7 @@
     <table style="white-space: nowrap;" id="example" class="display table-striped table-bordered table-hover table-condensed" cellspacing="0">
       <thead>
         <tr>
+            <th>序号</th>
          	<th>用户编号</th>
 	   		<th>用户名称</th>
 	   		<th>系统编号</th>
@@ -51,6 +52,7 @@
 	        	data:{"systemId":systemId,"username":username,"startdate":startdate,"enddate":enddate}
 	        },
 			"columns": [
+				{ "data": "orderNumber" },     
 				{ "data": "f_ZGBH" },
 				{ "data": "f_NAME" },
 				{ "data": "f_XTBH" },

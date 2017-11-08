@@ -38,8 +38,8 @@ public class LoginLogDaoImpl implements LoginLogDao {
 		Object[] countParams = new Object[] { dateInterval.getStartDate(), dateInterval.getEndDate() };
 
 		if (systemId.isEmpty() == false && username.isEmpty() == false) {
-			sql = "select ll.F_ZGBH,bu.F_NAME,ll.F_XTBH,ll.F_STIME,ll.F_ETIME,ll.F_IP from SYS_LOGINLOG ll,BSUSER bu where ll.F_XTBH = ? and ll.F_ZGBH = bu.F_ZGBH and bu.F_NAME = ? and ll.F_STIME BETWEEN ? AND ? ORDER BY ll.F_STIME DESC limit ?,?";
-			loginlog_count = "select count(ll.LOG_ID) from SYS_LOGINLOG ll,BSUSER bu where ll.F_XTBH = ? and ll.F_ZGBH = bu.F_ZGBH and bu.F_NAME = ? and ll.F_STIME BETWEEN ? AND ?";
+			sql = "select ll.F_ZGBH,bu.F_NAME,ll.F_XTBH,ll.F_STIME,ll.F_ETIME,ll.F_IP from SYS_LOGINLOG ll,BSUSER bu where ll.F_XTBH = ? and ll.F_ZGBH = bu.F_ZGBH and ll.F_ZGBH = ? and ll.F_STIME BETWEEN ? AND ? ORDER BY ll.F_STIME DESC limit ?,?";
+			loginlog_count = "select count(ll.LOG_ID) from SYS_LOGINLOG ll,BSUSER bu where ll.F_XTBH = ? and ll.F_ZGBH = bu.F_ZGBH and ll.F_ZGBH = ? and ll.F_STIME BETWEEN ? AND ?";
 			selectParams = new Object[] { systemId, username, dateInterval.getStartDate(), dateInterval.getEndDate(),
 					page.getStart(), page.getLength() };
 			countParams = new Object[] { systemId, username, dateInterval.getStartDate(), dateInterval.getEndDate() };
@@ -50,13 +50,16 @@ public class LoginLogDaoImpl implements LoginLogDao {
 					page.getStart(), page.getLength() };
 			countParams = new Object[] { systemId, dateInterval.getStartDate(), dateInterval.getEndDate() };
 		} else if (username.isEmpty() == false) {
-			sql = "select ll.F_ZGBH,bu.F_NAME,ll.F_XTBH,ll.F_STIME,ll.F_ETIME,ll.F_IP from SYS_LOGINLOG ll,BSUSER bu where ll.F_ZGBH = bu.F_ZGBH and bu.F_NAME = ? and ll.F_STIME BETWEEN ? AND ? ORDER BY ll.F_STIME DESC limit ?,?";
-			loginlog_count = "select count(ll.LOG_ID) from SYS_LOGINLOG ll,BSUSER bu where ll.F_ZGBH = bu.F_ZGBH and bu.F_NAME = ? and ll.F_STIME BETWEEN ? AND ?";
+			sql = "select ll.F_ZGBH,bu.F_NAME,ll.F_XTBH,ll.F_STIME,ll.F_ETIME,ll.F_IP from SYS_LOGINLOG ll,BSUSER bu where ll.F_ZGBH = bu.F_ZGBH and ll.F_ZGBH = ? and ll.F_STIME BETWEEN ? AND ? ORDER BY ll.F_STIME DESC limit ?,?";
+			loginlog_count = "select count(ll.LOG_ID) from SYS_LOGINLOG ll,BSUSER bu where ll.F_ZGBH = bu.F_ZGBH and ll.F_ZGBH = ? and ll.F_STIME BETWEEN ? AND ?";
 			selectParams = new Object[] { username, dateInterval.getStartDate(), dateInterval.getEndDate(),
 					page.getStart(), page.getLength() };
 			countParams = new Object[] { username, dateInterval.getStartDate(), dateInterval.getEndDate() };
 		}
 		List<LoginLog> list = jdbcTemplate.query(sql, selectParams, new BeanPropertyRowMapper(LoginLog.class));
+		for(int i=0;i<list.size();i++){
+			list.get(i).setOrderNumber(i+1);
+		}
 		Long counts = jdbcTemplate.queryForObject(loginlog_count, countParams, Long.class);
 		page.setRecordsTotal(counts);
 		page.setRecordsFiltered(counts);

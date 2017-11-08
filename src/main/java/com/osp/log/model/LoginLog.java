@@ -17,6 +17,7 @@ public class LoginLog implements Serializable {
 	private String F_XTBH;// 系统编号
 	private String F_STIME;// 开始时间
 	private String F_ETIME;// 结束时间
+	private Integer orderNumber;
 
 	public String getLOG_ID() {
 		return LOG_ID;
@@ -72,5 +73,13 @@ public class LoginLog implements Serializable {
 
 	public void setF_NAME(String f_NAME) {
 		F_NAME = f_NAME;
+	}
+
+	public Integer getOrderNumber() {
+		return orderNumber;
+	}
+
+	public void setOrderNumber(Integer orderNumber) {
+		this.orderNumber = orderNumber;
 	}
 }
