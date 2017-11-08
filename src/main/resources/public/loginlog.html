@@ -3,7 +3,7 @@
  
 <head>
   <meta charset="UTF-8">
-  <title>客户端访问统计</title>
+  <title>登录日志</title>
   <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
   <link href="css/dataTables.bootstrap.min.css" rel="stylesheet" media="screen">
   <link href="css/jquery.dataTables.min.css" rel="stylesheet" media="screen">
@@ -11,12 +11,15 @@
  
 <body>
   <div class="row-fluid" style="margin-top:5px;">
-    <table id="example" class="display table-striped table-bordered table-hover table-condensed" cellspacing="0" width="100%">
+    <table style="white-space: nowrap;" id="example" class="display table-striped table-bordered table-hover table-condensed" cellspacing="0">
       <thead>
         <tr>
-         	<th>序号</th>
-	   		<th>客户端地址</th>
-	   		<th>总数</th>
+         	<th>用户编号</th>
+	   		<th>用户名称</th>
+	   		<th>系统编号</th>
+	   		<th>登陆时间</th>
+	        <th>退出时间</th>
+	        <th>客户端IP</th>
         </tr>
       </thead>
     </table>
@@ -32,26 +35,30 @@
   <script src=js/urlvalue.js></script>
   
   <script type="text/javascript">
-  var myurl=GetQueryString("index");
   var startdate = GetQueryString("startdate");
   var enddate = GetQueryString("enddate");
+  var systemId = GetQueryString("systemId");
+  var username = GetQueryString("username"); 
   $(document).ready(function() {
 	    $('#example').dataTable( {
-	    	"searching" : false,
-		    "bSort": false,
-		    "bLengthChange":false,
 	        "processing": true,
 	        "serverSide": true,
+	        "searching" : false,
+	        "bSort": false,
+	        "bLengthChange":false,
 	        "ajax": {
-	        	url:"clientRequestCount",
-	            data:{"index":myurl,"startdate":startdate,"enddate":enddate}
+	        	url:"loginLog",
+	        	data:{"systemId":systemId,"username":username,"startdate":startdate,"enddate":enddate}
 	        },
 			"columns": [
-				{ "data": "rowId" },			
-				{ "data": "clientip" },
-				{ "data": "count" },
+				{ "data": "f_ZGBH" },
+				{ "data": "f_NAME" },
+				{ "data": "f_XTBH" },
+				{ "data": "f_STIME" },
+				{ "data": "f_ETIME" },
+				{ "data": "f_IP" },
 			],
-			language: {			
+			language: {
 		        "sProcessing": "处理中...",
 		        "sLengthMenu": "显示 _MENU_ 项结果",
 		        "sZeroRecords": "没有匹配结果",

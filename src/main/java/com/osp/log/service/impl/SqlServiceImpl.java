@@ -44,8 +44,8 @@ public class SqlServiceImpl implements SqlService {
 							.from(dateInterval.getStartDate()).to(dateInterval.getEndDate()))
 					.addSort("timestamp", SortOrder.DESC).execute().actionGet();
 			SearchHits myhits = response.getHits();
-			page.setRecordsFiltered((int) myhits.getTotalHits());
-			page.setRecordsTotal((int) myhits.getTotalHits());
+			page.setRecordsFiltered(myhits.getTotalHits());
+			page.setRecordsTotal(myhits.getTotalHits());
 
 			int i = 1;
 			for (SearchHit hit : myhits.getHits()) {

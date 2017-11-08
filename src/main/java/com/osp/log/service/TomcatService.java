@@ -17,5 +17,5 @@ public interface TomcatService {
 	
 	List<TomcatModel> errorTomcatRequest(Page page,String index,String startDate, String endDate);
 	
-	List<TomcatModel> clientRequestCount(Page page,String index);
+	List<TomcatModel> clientRequestCount(Page page,String index,String startDate,String endDate);
 }

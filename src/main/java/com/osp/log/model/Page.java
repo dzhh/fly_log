@@ -12,10 +12,10 @@ public class Page {
 	private int length;
 	
 	//表的总记录数 必要
-	private int recordsTotal;
+	private Long recordsTotal;
 	
 	//条件过滤后记录数 必要
-	private int recordsFiltered;
+	private Long recordsFiltered;
 
 	public int getDraw() {
 		return draw;
@@ -41,19 +41,19 @@ public class Page {
 		this.length = length;
 	}
 
-	public int getRecordsTotal() {
+	public Long getRecordsTotal() {
 		return recordsTotal;
 	}
 
-	public void setRecordsTotal(int recordsTotal) {
+	public void setRecordsTotal(Long recordsTotal) {
 		this.recordsTotal = recordsTotal;
 	}
 
-	public int getRecordsFiltered() {
+	public Long getRecordsFiltered() {
 		return recordsFiltered;
 	}
 
-	public void setRecordsFiltered(int recordsFiltered) {
+	public void setRecordsFiltered(Long recordsFiltered) {
 		this.recordsFiltered = recordsFiltered;
 	}
 }

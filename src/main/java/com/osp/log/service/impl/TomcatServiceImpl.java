@@ -138,20 +138,24 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 	 * 客户端访问次数统计-前10
 	 */
 	@Override
-	public List<TomcatModel> clientRequestCount(Page page, String index) {
+	public List<TomcatModel> clientRequestCount(Page page, String index, String startDate, String endDate) {
 		if (ESUtil.isExistsIndex(index) == false || ESUtil.isExistsType(index, getIndexType()) == false) {
 			return null;
 		}
+		DateInterval dateInterval = RegexUtil.getDateInterval(new DateInterval(startDate, endDate), "yyyyMMdd");
 		List<TomcatModel> list = new ArrayList<TomcatModel>();
 		TransportClient client = this.getClient();
 		try {
 			TermsAggregationBuilder aggregation = AggregationBuilders.terms("cilentip_count").field("clientip");
-			SearchResponse response = client.prepareSearch(index).setTypes(getIndexType()).addAggregation(aggregation)
-					.execute().actionGet();
+			SearchResponse response = client.prepareSearch(index).setTypes(getIndexType())
+					.setQuery(QueryBuilders.boolQuery()
+							.must(QueryBuilders.rangeQuery("timestamp").format("yyyyMMdd")
+									.from(dateInterval.getStartDate()).to(dateInterval.getEndDate())))
+					.addAggregation(aggregation).execute().actionGet();
 			Terms terms = response.getAggregations().get("cilentip_count");
 			List<Terms.Bucket> buckets = (List<Terms.Bucket>) terms.getBuckets();
-			page.setRecordsFiltered((int) buckets.size());
-			page.setRecordsTotal((int) buckets.size());
+			page.setRecordsFiltered((long) buckets.size());
+			page.setRecordsTotal((long) buckets.size());
 			int i = 1;
 			for (Terms.Bucket bucket : buckets) {
 				TomcatModel tomcat = new TomcatModel();
@@ -187,9 +191,8 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 							.from(dateInterval.getStartDate()).to(dateInterval.getEndDate()))
 					.addSort("timestamp", SortOrder.DESC).execute().actionGet();
 			SearchHits myhits = response.getHits();
-			page.setRecordsFiltered((int) myhits.getTotalHits());
-			page.setRecordsTotal((int) myhits.getTotalHits());
-
+			page.setRecordsFiltered(myhits.getTotalHits());
+			page.setRecordsTotal(myhits.getTotalHits());
 			int i = 1;
 			for (SearchHit hit : myhits.getHits()) {
 				TomcatModel tomcat = new TomcatModel();
@@ -228,8 +231,8 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 									.from(dateInterval.getStartDate()).to(dateInterval.getEndDate())))
 					.addSort("timestamp", SortOrder.DESC).execute().actionGet();
 			SearchHits myhits = response.getHits();
-			page.setRecordsFiltered((int) myhits.getTotalHits());
-			page.setRecordsTotal((int) myhits.getTotalHits());
+			page.setRecordsFiltered(myhits.getTotalHits());
+			page.setRecordsTotal(myhits.getTotalHits());
 
 			int i = 1;
 			for (SearchHit hit : myhits.getHits()) {

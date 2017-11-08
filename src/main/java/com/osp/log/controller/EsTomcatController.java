@@ -48,17 +48,17 @@ public class EsTomcatController {
 			@RequestParam(value = "index", defaultValue = "") String index,
 			@RequestParam(value = "startdate", defaultValue = "") String startDate,
 			@RequestParam(value = "enddate", defaultValue = "") String endDate) {
-		System.out.println("tomcatRequestAll index=" + index+" startDate="+startDate+" endDate="+endDate);
+		System.out.println("tomcatRequestAll index=" + index + " startDate=" + startDate + " endDate=" + endDate);
 		Page page = new Page();
 		page.setDraw(Integer.parseInt(request.getParameter("draw").toString()));
 		page.setStart(Integer.parseInt(request.getParameter("start").toString()));
 		page.setLength(Integer.parseInt(request.getParameter("length").toString()));
 
-		List<TomcatModel> list = tomcatService.tomcatRequestAll(page, index,startDate,endDate);
+		List<TomcatModel> list = tomcatService.tomcatRequestAll(page, index, startDate, endDate);
 		JSONObject jso = new JSONObject();
-		if(list!=null){
+		if (list != null) {
 			jso.put("data", JsonUtil.beanListToJson(list));
-		}else{
+		} else {
 			jso.put("data", "");
 		}
 		jso.put("draw", page.getDraw());
@@ -79,17 +79,17 @@ public class EsTomcatController {
 			@RequestParam(value = "index", defaultValue = "") String index,
 			@RequestParam(value = "startdate", defaultValue = "") String startDate,
 			@RequestParam(value = "enddate", defaultValue = "") String endDate) {
-		System.out.println("errorTomcatRequest index=" + index+" startDate="+startDate+" endDate="+endDate);
+		System.out.println("errorTomcatRequest index=" + index + " startDate=" + startDate + " endDate=" + endDate);
 		Page page = new Page();
 		page.setDraw(Integer.parseInt(request.getParameter("draw").toString()));
 		page.setStart(Integer.parseInt(request.getParameter("start").toString()));
 		page.setLength(Integer.parseInt(request.getParameter("length").toString()));
 
-		List<TomcatModel> list = tomcatService.errorTomcatRequest(page, index,startDate,endDate);
+		List<TomcatModel> list = tomcatService.errorTomcatRequest(page, index, startDate, endDate);
 		JSONObject jso = new JSONObject();
-		if(list!=null){
+		if (list != null) {
 			jso.put("data", JsonUtil.beanListToJson(list));
-		}else{
+		} else {
 			jso.put("data", "");
 		}
 		jso.put("draw", page.getDraw());
@@ -111,17 +111,17 @@ public class EsTomcatController {
 			@RequestParam(value = "index", defaultValue = "") String index,
 			@RequestParam(value = "startdate", defaultValue = "") String startDate,
 			@RequestParam(value = "enddate", defaultValue = "") String endDate) {
-		//默认为12天
-		if(startDate.isEmpty()==true){
+		// 默认为12天
+		if (startDate.isEmpty() == true) {
 			startDate = DateUtil.getPastDate(day);
-			endDate =  DateUtil.getDate();
-		}else{
-			//转换下时间格式 默认yyyyMMdd 转成 yyyy-MM-dd
-			startDate = startDate.substring(0, 4)+"-"+startDate.substring(4,6)+"-"+startDate.substring(6,8);
-			endDate = endDate.substring(0, 4)+"-"+endDate.substring(4,6)+"-"+endDate.substring(6,8);
+			endDate = DateUtil.getDate();
+		} else {
+			// 转换下时间格式 默认yyyyMMdd 转成 yyyy-MM-dd
+			startDate = startDate.substring(0, 4) + "-" + startDate.substring(4, 6) + "-" + startDate.substring(6, 8);
+			endDate = endDate.substring(0, 4) + "-" + endDate.substring(4, 6) + "-" + endDate.substring(6, 8);
 		}
-		System.out.println("tomcatRequestDate index=" + index+" startDate="+startDate+" endDate="+endDate);
-		TomcatModel tomcat = tomcatService.tomcatTimeSearch(day, index,startDate,endDate);
+		System.out.println("tomcatRequestDate index=" + index + " startDate=" + startDate + " endDate=" + endDate);
+		TomcatModel tomcat = tomcatService.tomcatTimeSearch(day, index, startDate, endDate);
 		return JsonUtil.beanToJson(tomcat);
 	}
 
@@ -137,8 +137,8 @@ public class EsTomcatController {
 			@RequestParam(value = "index", defaultValue = "") String index,
 			@RequestParam(value = "startdate", defaultValue = "") String startDate,
 			@RequestParam(value = "enddate", defaultValue = "") String endDate) {
-		System.out.println("tomcatRequest index=" + index+" startDate="+startDate+" endDate="+endDate);
-		TomcatModel tomcat = tomcatService.tomcatRequest(index,startDate,endDate);
+		System.out.println("tomcatRequest index=" + index + " startDate=" + startDate + " endDate=" + endDate);
+		TomcatModel tomcat = tomcatService.tomcatRequest(index, startDate, endDate);
 		return JsonUtil.beanToJson(tomcat);
 	}
 
@@ -151,25 +151,27 @@ public class EsTomcatController {
 	@ResponseBody
 	@RequestMapping(value = "/clientRequestCount")
 	public String clientRequestCount(HttpServletRequest request,
-			@RequestParam(value = "index", defaultValue = "") String index) {
-		System.out.println("clientRequestCount index=" + index);
+			@RequestParam(value = "index", defaultValue = "") String index,
+			@RequestParam(value = "startdate", defaultValue = "") String startDate,
+			@RequestParam(value = "enddate", defaultValue = "") String endDate) {
+		System.out.println("clientRequestCount index=" + index + " startDate=" + startDate + " endDate=" + endDate);
 		Page page = new Page();
 		page.setDraw(Integer.parseInt(request.getParameter("draw").toString()));
 		page.setStart(Integer.parseInt(request.getParameter("start").toString()));
 		page.setLength(Integer.parseInt(request.getParameter("length").toString()));
 
-		List<TomcatModel> list = tomcatService.clientRequestCount(page,index);
+		List<TomcatModel> list = tomcatService.clientRequestCount(page, index, startDate, endDate);
 		JSONObject jso = new JSONObject();
-		if(list!=null){
+		if (list != null) {
 			jso.put("data", JsonUtil.beanListToJson(list));
-		}else{
+		} else {
 			jso.put("data", "");
 		}
 		jso.put("draw", page.getDraw());
 		jso.put("recordsTotal", page.getRecordsTotal());
 		jso.put("recordsFiltered", page.getRecordsFiltered());
 		return jso.toString();
-	}	
+	}
 
 	@ResponseBody
 	@RequestMapping(value = "/tomcatRequestType")
