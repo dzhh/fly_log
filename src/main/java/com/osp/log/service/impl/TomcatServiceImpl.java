@@ -199,7 +199,7 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 				Map<String, Object> map = hit.getSource();
 				tomcat.setClientip((String) map.get("clientip"));
 				tomcat.setResponse((String) map.get("response"));
-				tomcat.setMessage((String) map.get("message"));
+				tomcat.setMessage((String) map.get("request"));
 				tomcat.setType((String) map.get("verb"));
 				tomcat.setTimestamp((String) map.get("timestamp"));
 				tomcat.setRowId(i);
@@ -240,7 +240,7 @@ public class TomcatServiceImpl extends BaseESService<TomcatModel> implements Tom
 				Map<String, Object> map = hit.getSource();
 				tomcat.setClientip((String) map.get("clientip"));
 				tomcat.setResponse((String) map.get("response"));
-				tomcat.setMessage((String) map.get("message"));
+				tomcat.setMessage((String) map.get("request"));
 				tomcat.setType((String) map.get("verb"));
 				tomcat.setTimestamp((String) map.get("timestamp"));
 				tomcat.setRowId(i);

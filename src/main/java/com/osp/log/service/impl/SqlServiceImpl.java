@@ -52,7 +52,7 @@ public class SqlServiceImpl implements SqlService {
 				SqlModel sqlModel = new SqlModel();
 				Map<String, Object> map = hit.getSource();
 				sqlModel.setMessage((String) map.get("message"));
-				sqlModel.setType((String) map.get("type"));
+				sqlModel.setGrade((String) map.get("grade"));
 				sqlModel.setTimestamp((String) map.get("timestamp"));
 				sqlModel.setRowId(i);
 				list.add(sqlModel);

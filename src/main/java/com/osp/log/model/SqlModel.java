@@ -14,6 +14,8 @@ public class SqlModel {
 	private String timestamp;
 
 	private String path;
+	
+	private String grade;
 
 	private int count;
 
@@ -101,5 +103,13 @@ public class SqlModel {
 
 	public void setHost(String host) {
 		this.host = host;
+	}
+
+	public String getGrade() {
+		return grade;
+	}
+
+	public void setGrade(String grade) {
+		this.grade = grade;
 	}
 }
