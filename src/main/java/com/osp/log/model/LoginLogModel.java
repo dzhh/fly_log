@@ -7,7 +7,7 @@ import java.io.Serializable;
  * 
  * @author zhangmingcheng
  */
-public class LoginLog implements Serializable {
+public class LoginLogModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private String LOG_ID;// 登录日志编号
